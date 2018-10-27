@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	types "github.com/kradalby/govcloudair/types/v56"
+	"github.com/kublr/govcloudair/types/v56"
 )
 
 func resourceVcdNetwork() *schema.Resource {
@@ -155,16 +155,14 @@ func resourceVcdNetworkCreate(d *schema.ResourceData, meta interface{}) error {
 		Name:  d.Get("name").(string),
 		Configuration: &types.NetworkConfiguration{
 			FenceMode: d.Get("fence_mode").(string),
-			IPScopes: &types.IPScopes{
-				IPScope: types.IPScope{
-					IsInherited: false,
-					Gateway:     d.Get("gateway").(string),
-					Netmask:     d.Get("netmask").(string),
-					DNS1:        d.Get("dns1").(string),
-					DNS2:        d.Get("dns2").(string),
-					DNSSuffix:   d.Get("dns_suffix").(string),
-					IPRanges:    &ipRanges,
-				},
+			IPScope: &types.IPScope{
+				IsInherited: false,
+				Gateway:     d.Get("gateway").(string),
+				Netmask:     d.Get("netmask").(string),
+				DNS1:        d.Get("dns1").(string),
+				DNS2:        d.Get("dns2").(string),
+				DNSSuffix:   d.Get("dns_suffix").(string),
+				IPRanges:    &ipRanges,
 			},
 			BackwardCompatibilityMode: true,
 		},
@@ -234,11 +232,11 @@ func resourceVcdNetworkRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("href", network.OrgVDCNetwork.HREF)
 	if c := network.OrgVDCNetwork.Configuration; c != nil {
 		d.Set("fence_mode", c.FenceMode)
-		if c.IPScopes != nil {
-			d.Set("gateway", c.IPScopes.IPScope.Gateway)
-			d.Set("netmask", c.IPScopes.IPScope.Netmask)
-			d.Set("dns1", c.IPScopes.IPScope.DNS1)
-			d.Set("dns2", c.IPScopes.IPScope.DNS2)
+		if c.IPScope != nil {
+			d.Set("gateway", c.IPScope.Gateway)
+			d.Set("netmask", c.IPScope.Netmask)
+			d.Set("dns1", c.IPScope.DNS1)
+			d.Set("dns2", c.IPScope.DNS2)
 		}
 	}
 

@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	types "github.com/kradalby/govcloudair/types/v56"
+	"github.com/kublr/govcloudair/types/v56"
 )
 
 func readVApp(d *schema.ResourceData, meta interface{}) error {
@@ -59,17 +59,17 @@ func readVApp(d *schema.ResourceData, meta interface{}) error {
 				vAppNetwork.NetworkName)
 			// vAppNetworkResource.Set("description", vAppnetwork.Configuration)
 			vAppNetworkResource.Set("gateway",
-				vAppNetwork.Configuration.IPScopes.IPScope.Gateway)
+				vAppNetwork.Configuration.IPScope.Gateway)
 			vAppNetworkResource.Set("netmask",
-				vAppNetwork.Configuration.IPScopes.IPScope.Netmask)
+				vAppNetwork.Configuration.IPScope.Netmask)
 			vAppNetworkResource.Set("dns1",
-				vAppNetwork.Configuration.IPScopes.IPScope.DNS1)
+				vAppNetwork.Configuration.IPScope.DNS1)
 			vAppNetworkResource.Set("dns2",
-				vAppNetwork.Configuration.IPScopes.IPScope.DNS2)
+				vAppNetwork.Configuration.IPScope.DNS2)
 			vAppNetworkResource.Set("start",
-				vAppNetwork.Configuration.IPScopes.IPScope.IPRanges.IPRange[0].StartAddress)
+				vAppNetwork.Configuration.IPScope.IPRanges.IPRange[0].StartAddress)
 			vAppNetworkResource.Set("end",
-				vAppNetwork.Configuration.IPScopes.IPScope.IPRanges.IPRange[0].EndAddress)
+				vAppNetwork.Configuration.IPScope.IPRanges.IPRange[0].EndAddress)
 
 			if vAppNetwork.Configuration.ParentNetwork != nil {
 				vAppNetworkResource.Set("parent",
@@ -129,20 +129,18 @@ func createNetworkConfiguration(d *schema.ResourceData, meta interface{}) ([]*ty
 		configuration := &types.NetworkConfiguration{
 			FenceMode: types.FenceModeIsolated,
 			Features:  &types.NetworkFeatures{},
-			IPScopes: &types.IPScopes{
-				IPScope: types.IPScope{
-					IsInherited: false,
-					Gateway:     vAppNetwork.Get("gateway").(string),
-					Netmask:     vAppNetwork.Get("netmask").(string),
-					DNS1:        vAppNetwork.Get("dns1").(string),
-					DNS2:        vAppNetwork.Get("dns2").(string),
-					IsEnabled:   true,
-					IPRanges: &types.IPRanges{
-						IPRange: []*types.IPRange{&types.IPRange{
-							StartAddress: vAppNetwork.Get("start").(string),
-							EndAddress:   vAppNetwork.Get("end").(string),
-						}},
-					},
+			IPScope: &types.IPScope{
+				IsInherited: false,
+				Gateway:     vAppNetwork.Get("gateway").(string),
+				Netmask:     vAppNetwork.Get("netmask").(string),
+				DNS1:        vAppNetwork.Get("dns1").(string),
+				DNS2:        vAppNetwork.Get("dns2").(string),
+				IsEnabled:   true,
+				IPRanges: &types.IPRanges{
+					IPRange: []*types.IPRange{&types.IPRange{
+						StartAddress: vAppNetwork.Get("start").(string),
+						EndAddress:   vAppNetwork.Get("end").(string),
+					}},
 				},
 			},
 		}
@@ -154,10 +152,10 @@ func createNetworkConfiguration(d *schema.ResourceData, meta interface{}) ([]*ty
 					StartAddress: vAppNetwork.Get("dhcp_start").(string),
 					EndAddress:   vAppNetwork.Get("dhcp_end").(string),
 				},
-				PrimaryNameServer:   configuration.IPScopes.IPScope.DNS1,
-				SecondaryNameServer: configuration.IPScopes.IPScope.DNS1,
-				SubMask:             configuration.IPScopes.IPScope.Netmask,
-				RouterIP:            configuration.IPScopes.IPScope.Gateway,
+				PrimaryNameServer:   configuration.IPScope.DNS1,
+				SecondaryNameServer: configuration.IPScope.DNS1,
+				SubMask:             configuration.IPScope.Netmask,
+				RouterIP:            configuration.IPScope.Gateway,
 			}
 		}
 

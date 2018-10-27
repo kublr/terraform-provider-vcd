@@ -6,8 +6,8 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	govcd "github.com/kradalby/govcloudair" // Forked from vmware/govcloudair
-	types "github.com/kradalby/govcloudair/types/v56"
+	govcd "github.com/kublr/govcloudair" // Forked from vmware/govcloudair
+	"github.com/kublr/govcloudair/types/v56"
 )
 
 // func createVMDescription() (*types.NewVMDescription, error) {
@@ -317,9 +317,9 @@ func createNetworkConnectionSection(networkConnections []map[string]interface{})
 	}
 
 	newNetwork := &types.NetworkConnectionSection{
-		Xmlns: "http://www.vmware.com/vcloud/v1.5",
-		Ovf:   "http://schemas.dmtf.org/ovf/envelope/1",
-		Info:  "Specifies the available VM network connections",
+		Xmlns:                         "http://www.vmware.com/vcloud/v1.5",
+		Ovf:                           "http://schemas.dmtf.org/ovf/envelope/1",
+		Info:                          "Specifies the available VM network connections",
 		PrimaryNetworkConnectionIndex: primaryNetworkConnectionIndex,
 		NetworkConnection:             newNetworkConnections,
 	}

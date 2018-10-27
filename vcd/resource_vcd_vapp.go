@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/kradalby/govcloudair"
+	"github.com/kublr/govcloudair"
 )
 
 func resourceVcdVApp() *schema.Resource {
