@@ -60,7 +60,8 @@ const (
 	// MimeNetwork mime for a network
 	MimeNetwork = "application/vnd.vmware.vcloud.network+xml"
 	// MimeMedia mime for Media object
-	MimeMedia = "application/vnd.vmware.vcloud.media+xml"
+	MimeMedia             = "application/vnd.vmware.vcloud.media+xml"
+	MimeComposeVAppParams = "application/vnd.vmware.vcloud.composeVAppParams+xml"
 )
 
 const (

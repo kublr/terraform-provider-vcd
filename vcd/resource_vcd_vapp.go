@@ -60,10 +60,13 @@ func resourceVcdVAppCreate(d *schema.ResourceData, meta interface{}) error {
 
 	if err != nil {
 		log.Printf("[TRACE] No vApp found, preparing creation")
-		vapp = vcdClient.NewVApp(&vcdClient.Client)
-
 		err = retryCallWithBusyEntityErrorHandling(vcdClient.MaxRetryTimeout, func() (govcloudair.Task, error) {
-			return vapp.ComposeVApp(d.Get("name").(string), d.Get("description").(string), networks)
+			task, err := vcdClient.OrgVdc.ComposeVApp(d.Get("name").(string), d.Get("description").(string), networks)
+			if err == nil {
+				vapp, err = vcdClient.OrgVdc.GetVAppByHREF(task.Task.Owner.HREF)
+			}
+
+			return task, err
 		})
 		if err != nil {
 			return err

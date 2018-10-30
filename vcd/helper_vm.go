@@ -2,6 +2,7 @@ package vcd
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"log"
 
 	"github.com/hashicorp/terraform/helper/resource"
@@ -49,7 +50,7 @@ func composeSourceItem(d *schema.ResourceData, meta interface{}) (*types.Sourced
 	// Remove the Network connections from the template
 	vm.VM.NetworkConnectionSection.NetworkConnection = []*types.NetworkConnection{}
 
-	configureVM(d, vm)
+	configureVM(d, vm, meta)
 
 	sourceItem := &types.SourcedCompositionItemParam{
 		Source: &types.Reference{
@@ -63,18 +64,18 @@ func composeSourceItem(d *schema.ResourceData, meta interface{}) (*types.Sourced
 		},
 	}
 
-	var storageProfile types.Reference
+	storageProfileName := d.Get("storage_profile").(string)
+	if storageProfileName == "" {
+		storageProfileName, err = findDefaultStorageProfile(vcdClient)
+		if err != nil {
 
-	if d.Get("storage_profile").(string) != "" {
-		storageProfile, err = vcdClient.OrgVdc.FindStorageProfileReference(d.Get("storage_profile").(string))
-		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "cannot find default storage profile")
 		}
-	} else {
-		storageProfile, err = vcdClient.OrgVdc.GetDefaultStorageProfileReference()
-		if err != nil {
-			return nil, err
-		}
+	}
+
+	storageProfile, err := vcdClient.OrgVdc.FindStorageProfileReference(storageProfileName)
+	if err != nil {
+		return nil, err
 	}
 
 	sourceItem.StorageProfile = &storageProfile
@@ -82,8 +83,8 @@ func composeSourceItem(d *schema.ResourceData, meta interface{}) (*types.Sourced
 	return sourceItem, nil
 }
 
-func configureVM(d *schema.ResourceData, vm *govcd.VM) error {
-	// vcdClient := meta.(*VCDClient)
+func configureVM(d *schema.ResourceData, vm *govcd.VM, meta interface{}) error {
+	vcdClient := meta.(*VCDClient)
 
 	// Remove network hardware from virtualhw list.
 	vm.RemoveVirtualHardwareItemByResourceType(types.ResourceTypeEthernet)
@@ -133,10 +134,13 @@ func configureVM(d *schema.ResourceData, vm *govcd.VM) error {
 	// Change storage profile of VM
 	if d.HasChange("storage_profile") {
 		log.Printf("[TRACE] (%s) Changing storage profile", d.Get("name").(string))
-		err := vm.SetStorageProfile(d.Get("storage_profile").(string))
+		storageProfileName := d.Get("storage_profile").(string)
+		storageProfile, err := vcdClient.OrgVdc.FindStorageProfileReference(storageProfileName)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "cannot find storage profile: name=%s", storageProfileName)
 		}
+
+		vm.SetStorageProfile(storageProfile)
 	}
 
 	// vm.SetNeedsCustomization(true)

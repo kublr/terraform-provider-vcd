@@ -18,11 +18,13 @@ import (
 
 // Client provides a client to vCloud Air, values can be populated automatically using the Authenticate method.
 type Client struct {
-	APIVersion    string      // The API version required
-	VCDToken      string      // Access Token (authorization header)
-	VCDAuthHeader string      // Authorization header
-	VCDVDCHREF    url.URL     // HREF of the backend VDC you're using
-	Http          http.Client // HttpClient is the client to use. Default will be used if not provided.
+	APIVersion string
+
+	VCDEndpoint   url.URL
+	VCDToken      string // Access Token (authorization header)
+	VCDAuthHeader string // Authorization header
+
+	Http http.Client // HttpClient is the client to use. Default will be used if not provided.
 }
 
 // NewRequest creates a new HTTP request and applies necessary auth headers if

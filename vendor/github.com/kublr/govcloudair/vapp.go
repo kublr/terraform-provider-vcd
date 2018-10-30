@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
+	"github.com/pkg/errors"
 	"log"
 	"net/url"
 
@@ -195,12 +196,7 @@ func (v *VApp) SetDescription(value string) (Task, error) {
 		v.c)
 }
 
-func (v *VApp) ComposeVApp(name string, description string, networkConfigurations []*types.VAppNetworkConfiguration) (Task, error) {
-
-	// if vapptemplate.VAppTemplate.Children == nil || orgvdcnetwork.OrgVDCNetwork == nil {
-	// 	return Task{}, fmt.Errorf("can't compose a new vApp, objects passed are not valid")
-	// }
-
+func (v *Vdc) ComposeVApp(name string, description string, networkConfigurations []*types.VAppNetworkConfiguration) (Task, error) {
 	// Build request XML
 	vcomp := &types.ComposeVAppParams{
 		Ovf:         "http://schemas.dmtf.org/ovf/envelope/1",
@@ -226,12 +222,17 @@ func (v *VApp) ComposeVApp(name string, description string, networkConfiguration
 	log.Printf("[TRACE] XML vApp: %s\n", output)
 
 	b := bytes.NewBufferString(xml.Header + string(output))
+	link := v.Vdc.Link.ForType(types.MimeComposeVAppParams, types.RelAdd)
+	if link == nil {
+		return Task{}, errors.Errorf("cannot find endpoint: type=%s, rel=%s", types.MimeComposeVAppParams, types.RelAdd)
+	}
 
-	s := v.c.VCDVDCHREF
-	s.Path += "/action/composeVApp"
+	u, err := url.Parse(link.HREF)
+	if err != nil {
+		return Task{}, errors.Wrapf(err, "cannot parse url: %s", link.HREF)
+	}
 
-	req := v.c.NewRequest(map[string]string{}, "POST", s, b)
-
+	req := v.c.NewRequest(map[string]string{}, "POST", *u, b)
 	req.Header.Add("Content-Type", "application/vnd.vmware.vcloud.composeVAppParams+xml")
 
 	resp, err := checkResp(v.c.Http.Do(req))
@@ -241,12 +242,13 @@ func (v *VApp) ComposeVApp(name string, description string, networkConfiguration
 	}
 	defer resp.Body.Close()
 
-	if err = decodeBody(resp, v.VApp); err != nil {
+	vApp := types.VApp{}
+	if err = decodeBody(resp, vApp); err != nil {
 		return Task{}, fmt.Errorf("error decoding vApp response: %s", err)
 	}
 
 	task := NewTask(v.c)
-	task.Task = v.VApp.Tasks.Task[0]
+	task.Task = vApp.Tasks.Task[0]
 
 	// The request was successful
 	return *task, nil

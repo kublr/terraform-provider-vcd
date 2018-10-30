@@ -264,27 +264,8 @@ func (v *VM) SetNestedHypervisorWithRequest(value bool) (Task, error) {
 		v.c)
 }
 
-func (v *VM) SetStorageProfile(name string) error {
-
-	vdc, _ := v.c.retrieveVDC()
-
-	var storageProfile types.Reference
-	var err error
-
-	if name != "" {
-		storageProfile, err = vdc.FindStorageProfileReference(name)
-		if err != nil {
-			return err
-		}
-	} else {
-		storageProfile, err = vdc.GetDefaultStorageProfileReference()
-		if err != nil {
-			return err
-		}
-	}
-
+func (v *VM) SetStorageProfile(storageProfile types.Reference) {
 	v.VM.StorageProfile = &storageProfile
-	return nil
 }
 
 // func (v *VM) SetStorageProfileWithRequest(storageProfile types.Reference) (Task, error) {

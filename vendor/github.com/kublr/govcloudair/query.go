@@ -5,7 +5,7 @@
 package govcloudair
 
 import (
-	"fmt"
+	"github.com/pkg/errors"
 
 	"github.com/kublr/govcloudair/types/v56"
 )
@@ -23,19 +23,16 @@ func NewResults(c *Client) *Results {
 }
 
 func (c *VCDClient) Query(params map[string]string) (Results, error) {
-	req := c.Client.NewRequest(params, "GET", c.QueryHREF, nil)
-	req.Header.Add(GetVersionHeader(types.ApiVersion))
-
+	req := c.Client.NewRequest(params, "GET", c.queryHREF, nil)
 	resp, err := checkResp(c.Client.Http.Do(req))
 	if err != nil {
-		return Results{}, fmt.Errorf("error retreiving query: %s", err)
+		return Results{}, errors.Wrapf(err, "cannot execute request: %s", c.queryHREF.String())
 	}
 	defer resp.Body.Close()
 
 	results := NewResults(&c.Client)
-
 	if err = decodeBody(resp, results.Results); err != nil {
-		return Results{}, fmt.Errorf("error decoding query results: %s", err)
+		return Results{}, errors.Wrap(err, "cannot unmarshal response")
 	}
 
 	return *results, nil

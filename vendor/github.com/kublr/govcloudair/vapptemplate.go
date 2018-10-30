@@ -9,6 +9,8 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github.com/kublr/govcloudair/types/v56"
+	"github.com/pkg/errors"
+	"net/url"
 )
 
 type VAppTemplate struct {
@@ -30,11 +32,18 @@ func (v *Vdc) InstantiateVAppTemplate(template *types.InstantiateVAppTemplatePar
 	}
 	b := bytes.NewBufferString(xml.Header + string(output))
 
-	s := v.c.VCDVDCHREF
-	s.Path += "/action/instantiateVAppTemplate"
+	link := v.Vdc.Link.ForType(types.MimeInstantiateVAppTemplate, types.RelAdd)
+	if link == nil {
+		return errors.Errorf("cannot find endpoint: type=%s, rel=%s", types.MimeInstantiateVAppTemplate, types.RelAdd)
+	}
 
-	req := v.c.NewRequest(map[string]string{}, "POST", s, b)
-	req.Header.Add("Content-Type", "application/vnd.vmware.vcloud.instantiateVAppTemplateParams+xml")
+	u, err := url.Parse(link.HREF)
+	if err != nil {
+		return errors.Wrapf(err, "cannot parse url: %s", link.HREF)
+	}
+
+	req := v.c.NewRequest(map[string]string{}, "POST", *u, b)
+	req.Header.Add("Content-Type", types.MimeInstantiateVAppTemplate)
 
 	resp, err := checkResp(v.c.Http.Do(req))
 	if err != nil {

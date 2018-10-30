@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
+	"github.com/pkg/errors"
 	"log"
 	"net/url"
 	"os"
@@ -16,9 +17,8 @@ import (
 )
 
 type Vdc struct {
-	Vdc  *types.Vdc
-	c    *Client
-	VApp *types.VApp
+	Vdc *types.Vdc
+	c   *Client
 }
 
 func NewVdc(c *Client) *Vdc {
@@ -26,26 +26,6 @@ func NewVdc(c *Client) *Vdc {
 		Vdc: new(types.Vdc),
 		c:   c,
 	}
-}
-
-func (c *Client) retrieveVDC() (Vdc, error) {
-
-	req := c.NewRequest(map[string]string{}, "GET", c.VCDVDCHREF, nil)
-
-	resp, err := checkResp(c.Http.Do(req))
-	if err != nil {
-		return Vdc{}, fmt.Errorf("error retreiving vdc: %s", err)
-	}
-	defer resp.Body.Close()
-
-	vdc := NewVdc(c)
-
-	if err = decodeBody(resp, vdc.Vdc); err != nil {
-		return Vdc{}, fmt.Errorf("error decoding vdc response: %s", err)
-	}
-
-	// The request was successful
-	return *vdc, nil
 }
 
 func (v *Vdc) Refresh() error {
@@ -126,40 +106,6 @@ func (v *Vdc) FindStorageProfileReference(name string) (types.Reference, error) 
 	}
 
 	return *ref, nil
-}
-
-func (v *Vdc) GetDefaultStorageProfileReference() (types.Reference, error) {
-
-	// storageprofiles *types.QueryResultRecordsType
-	query := fmt.Sprintf("%v?type=orgVdcStorageProfile&type=records&filter=(vdcName==%s)", v.c.VCDVDCHREF, v.Vdc.Name)
-
-	u, err := url.ParseRequestURI(query)
-
-	if err != nil {
-		return types.Reference{}, fmt.Errorf("error decoding vdc response: %s", err)
-	}
-
-	// Querying the Result list
-	req := v.c.NewRequest(map[string]string{}, "GET", *u, nil)
-
-	resp, err := checkResp(v.c.Http.Do(req))
-	if err != nil {
-		return types.Reference{}, fmt.Errorf("error retrieving edge gateway records: %s", err)
-	}
-	defer resp.Body.Close()
-
-	storageprofiles := new(types.QueryResultRecordsType)
-
-	if err = decodeBody(resp, storageprofiles); err != nil {
-		return types.Reference{}, fmt.Errorf("error decoding edge gateway query response: %s", err)
-	}
-
-	for _, spr := range storageprofiles.OrgVdcStorageProfileRecord {
-		if spr.IsDefaultStorageProfile {
-			return types.Reference{HREF: spr.HREF, Name: spr.Name}, nil
-		}
-	}
-	return types.Reference{}, fmt.Errorf("can't find Default VDC Storage_profile")
 }
 
 // Doesn't work with vCloud API 5.5, only vCloud Air
@@ -269,12 +215,18 @@ func (v *Vdc) ComposeRawVApp(name string) error {
 
 	b := bytes.NewBufferString(xml.Header + string(output))
 
-	s := v.c.VCDVDCHREF
-	s.Path += "/action/composeVApp"
+	link := v.Vdc.Link.ForType(types.MimeComposeVAppParams, types.RelAdd)
+	if link == nil {
+		return errors.Errorf("cannot find endpoint: type=%s, rel=%s", types.MimeComposeVAppParams, types.RelAdd)
+	}
 
-	req := v.c.NewRequest(map[string]string{}, "POST", s, b)
+	u, err := url.Parse(link.HREF)
+	if err != nil {
+		return errors.Wrapf(err, "cannot parse url: %s", link.HREF)
+	}
 
-	req.Header.Add("Content-Type", "application/vnd.vmware.vcloud.composeVAppParams+xml")
+	req := v.c.NewRequest(map[string]string{}, "POST", *u, b)
+	req.Header.Add("Content-Type", types.MimeComposeVAppParams)
 
 	resp, err := checkResp(v.c.Http.Do(req))
 	if err != nil {
@@ -283,7 +235,6 @@ func (v *Vdc) ComposeRawVApp(name string) error {
 	defer resp.Body.Close()
 
 	task := NewTask(v.c)
-
 	if err = decodeBody(resp, task.Task); err != nil {
 		return fmt.Errorf("error decoding task response: %s", err)
 	}

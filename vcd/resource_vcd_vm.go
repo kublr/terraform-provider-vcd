@@ -138,7 +138,7 @@ func resourceVcdVMCreate(d *schema.ResourceData, meta interface{}) error {
 
 	log.Printf("[DEBUG] (%s) Starting to configure", d.Get("name").(string))
 
-	err = configureVM(d, vm)
+	err = configureVM(d, vm, meta)
 
 	if err != nil {
 		return err
@@ -232,7 +232,7 @@ func resourceVcdVMUpdate(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	err = configureVM(d, &vm)
+	err = configureVM(d, &vm, meta)
 
 	if err != nil {
 		return err

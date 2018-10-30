@@ -9,4 +9,4 @@
 
 [[constraint]]
   name = "github.com/kublr/govcloudair"
-  branch = "wip" # ToDo ...
+  branch = "master"

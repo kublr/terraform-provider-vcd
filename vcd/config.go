@@ -1,11 +1,12 @@
 package vcd
 
 import (
-	"fmt"
 	"net/url"
+	"sync"
 
 	govcd "github.com/kublr/govcloudair" // Forked from vmware/govcloudair
 	"github.com/kublr/govcloudair/types/v56"
+	"github.com/pkg/errors"
 )
 
 type Config struct {
@@ -20,6 +21,11 @@ type Config struct {
 
 type VCDClient struct {
 	*govcd.VCDClient
+
+	Org    govcd.Org
+	OrgVdc govcd.Vdc
+
+	Mutex           sync.Mutex
 	MaxRetryTimeout int
 	InsecureFlag    bool
 }
@@ -27,17 +33,31 @@ type VCDClient struct {
 func (c *Config) Client() (*VCDClient, error) {
 	u, err := url.ParseRequestURI(c.Href)
 	if err != nil {
-		return nil, fmt.Errorf("Something went wrong: %s", err)
+		return nil, errors.Wrapf(err, "Cannot parse URL: %s", c.Href)
 	}
 
-	vcdclient := &VCDClient{
-		govcd.NewVCDClient(*u, c.InsecureFlag, types.ApiVersion),
-		c.MaxRetryTimeout, c.InsecureFlag}
-	org, vcd, err := vcdclient.Authenticate(c.User, c.Password, c.Org, c.VDC)
+	client := govcd.NewVCDClient(*u, c.InsecureFlag, types.ApiVersion)
+	err = client.Authenticate(c.User, c.Password, c.Org)
 	if err != nil {
-		return nil, fmt.Errorf("Something went wrong: %s", err)
+		return nil, errors.Wrapf(err, "Cannot authenticate in vCD: orgName=%s, userName=%s", c.Org, c.User)
 	}
-	vcdclient.Org = org
-	vcdclient.OrgVdc = vcd
-	return vcdclient, nil
+
+	org, err := client.GetOrg()
+	if err != nil {
+		return nil, errors.Wrapf(err, "Cannot retrieve Org: orgName=%s", c.Org)
+	}
+
+	vdc, err := org.FindVDC(c.VDC)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Cannot retrieve VDC: vdcName=%s", c.VDC)
+	}
+
+	return &VCDClient{
+		client,
+		org,
+		vdc,
+		sync.Mutex{},
+		c.MaxRetryTimeout,
+		c.InsecureFlag,
+	}, nil
 }

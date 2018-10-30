@@ -323,15 +323,15 @@
   revision = "0b12d6b5"
 
 [[projects]]
-  branch = "wip"
-  digest = "1:fdbb942a167f77bfd1a756cc6b9f57c6842fa83189e21a74bc2ba1fb9fbd8be8"
+  branch = "master"
+  digest = "1:b25ba59dc90114c4fe0bb23347528ed0f03280085e93193560c539bb40758fea"
   name = "github.com/kublr/govcloudair"
   packages = [
     ".",
     "types/v56",
   ]
   pruneopts = "NUT"
-  revision = "b8917f4e1ff78122d58baba3c29d9a13306b5dad"
+  revision = "d5160804f57cb9563ce952aa3523cdd4e8959456"
 
 [[projects]]
   digest = "1:08c231ec84231a7e23d67e4b58f975e1423695a32467a362ee55a803f9de8061"
@@ -593,6 +593,7 @@
     "github.com/hashicorp/terraform/terraform",
     "github.com/kublr/govcloudair",
     "github.com/kublr/govcloudair/types/v56",
+    "github.com/pkg/errors",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
