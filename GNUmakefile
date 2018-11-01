@@ -1,40 +1,69 @@
-TEST?=$$(go list ./... |grep -v 'vendor')
-GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
+# By default, build only.
+all: build
 
-default: build install
+include main.properties
 
-install:
-	go install
+# Configuration.
+GOOS ?= linux
+GOARCH ?= amd64
+GOBINARY ?= go
+TAG ?= dev
+
+ARCHIVE=$(COMPONENT_NAME)-$(TAG)-$(value GOOS)-$(value GOARCH).tar.gz
+BINARY=$(COMPONENT_NAME)-$(GOOS)-$(GOARCH)
+
+# All files excluding vendor
+FILES=$$($(GOBINARY) list ./... | grep -v /vendor/ | grep -v /gen/)
+TEST?="./..."
+# List of sources
+SOURCES=$$(find . -name '*.go' | grep -v /vendor/ | grep -v /gen/)
+
+# Run code style checks
+fmt:
+	gofmt -w $(SOURCES)
+
+fmtcheck: fmt
+	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
+
+# Do build
+build: clean fmtcheck
+	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) $(GOBINARY) build -o $(BINARY)
+.PHONY: build
+
+upload-binary: build
+	tar -cvzf "$(ARCHIVE)" "$(BINARY)"
+	curl -v --progress-bar --user "$(REPO_USERNAME):$(REPO_PASSWORD)" --upload-file "$(ARCHIVE)" "$(GOBINARIES_REPO_URL)/$(COMPONENT_NAME)/$(COMPONENT_VERSION)/$(ARCHIVE)"
+.PHONY: upload-binary
+
+# Do cleanup.
+clean:
+	rm -f $(BINARY)
+.PHONY: clean
+# Prepare release.
+prepare-release: build upload-binary
+.PHONY: prepare-release
+####################################
+install: build
+	$(GOBINARY)  install
 	mkdir -p $(HOME)/.terraform.d/plugins
-	cp $(GOPATH)/bin/terraform-provider-vcd $(HOME)/.terraform.d/plugins/terraform-provider-vcd_v1.0.0_x4
-
-build: fmtcheck
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/terraform-provider-vcd-linux-amd64
-	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o bin/terraform-provider-vcd-darwin-amd64
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o bin/terraform-provider-vcd-win-amd64.exe
+	mv $(BINARY) $(HOME)/.terraform.d/plugins/terraform-provider-vcd_v1.0.0_x4
 
 test: fmtcheck
-	go test -i $(TEST) || exit 1
-	echo $(TEST) | \
+	$(GOBINARY)  test -i $(FILES) || exit 1
+	echo $(FILES) | \
 		xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4
 
 testacc: fmtcheck
-	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m
+	TF_ACC=1 $(GOBINARY)  test $(FILES) -v $(TESTARGS) -timeout 120m
 
 vet:
 	@echo "go vet ."
-	@go vet $$(go list ./... | grep -v vendor/) ; if [ $$? -eq 1 ]; then \
+	@$(GOBINARY) vet $$(go list ./... | grep -v vendor/) ; if [ $$? -eq 1 ]; then \
 		echo ""; \
 		echo "Vet found suspicious constructs. Please check the reported constructs"; \
 		echo "and fix them if necessary before submitting the code for review."; \
 		exit 1; \
 	fi
-
-fmt:
-	gofmt -w $(GOFMT_FILES)
-
-fmtcheck:
-	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
 
 errcheck:
 	@sh -c "'$(CURDIR)/scripts/errcheck.sh'"
@@ -48,7 +77,7 @@ test-compile:
 		echo "  make test-compile TEST=./aws"; \
 		exit 1; \
 	fi
-	go test -c $(TEST) $(TESTARGS)
+	$(GOBINARY) test -c $(TEST) $(TESTARGS)
 
-.PHONY: build test testacc vet fmt fmtcheck errcheck vendor-status test-compile
+.PHONY: test testacc vet fmt fmtcheck errcheck vendor-status test-compile
 
