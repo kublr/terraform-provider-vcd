@@ -242,7 +242,7 @@ func (v *Vdc) ComposeVApp(name string, description string, networkConfigurations
 	}
 	defer resp.Body.Close()
 
-	vApp := types.VApp{}
+	vApp := &types.VApp{}
 	if err = decodeBody(resp, vApp); err != nil {
 		return Task{}, fmt.Errorf("error decoding vApp response: %s", err)
 	}
