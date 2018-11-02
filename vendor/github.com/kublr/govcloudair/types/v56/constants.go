@@ -31,8 +31,12 @@ const (
 	MimeOrgList = "application/vnd.vmware.vcloud.orgList+xml"
 	// MimeOrg mime for org
 	MimeOrg = "application/vnd.vmware.vcloud.org+xml"
+	// MimeAdminOrg mime for adminOrg
+	MimeAdminOrg = "application/vnd.vmware.admin.organization+xml"
 	// MimeCatalog mime for catalog
 	MimeCatalog = "application/vnd.vmware.vcloud.catalog+xml"
+	// MimeAdminCatalog mime for a adminCatalog
+	MimeAdminCatalog = "application/vnd.vmware.admin.catalog+xml"
 	// MimeCatalogItem mime for catalog item
 	MimeCatalogItem = "application/vnd.vmware.vcloud.catalogItem+xml"
 	// MimeVDC mime for a VDC

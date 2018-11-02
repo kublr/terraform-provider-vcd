@@ -1,5 +1,10 @@
 package types
 
+import (
+	"github.com/pkg/errors"
+	"net/url"
+)
+
 // LinkPredicate is a predicate for finding links in a link list
 type LinkPredicate func(*Link) bool
 
@@ -40,6 +45,34 @@ func (l LinkList) ForType(tpe, rel string) *Link {
 // ForName finds a link for a given name and type
 func (l LinkList) ForName(name, tpe, rel string) *Link {
 	return l.Find(byNameTypeAndRel(name, tpe, rel))
+}
+
+func (l LinkList) URLForType(tpe, rel string) (*url.URL, error) {
+	link := l.ForType(tpe, rel)
+	if link == nil {
+		return nil, errors.Errorf("cannot find link: type=%s, rel=%s", tpe, rel)
+	}
+
+	u, err := url.ParseRequestURI(link.HREF)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot parse url: %s", link.HREF)
+	}
+
+	return u, nil
+}
+
+func (l LinkList) URLForName(name, tpe, rel string) (*url.URL, error) {
+	link := l.ForName(name, tpe, rel)
+	if link == nil {
+		return nil, errors.Errorf("cannot find link: name=%s, type=%s, rel=%s", name, tpe, rel)
+	}
+
+	u, err := url.ParseRequestURI(link.HREF)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot parse url: %s", link.HREF)
+	}
+
+	return u, nil
 }
 
 const (

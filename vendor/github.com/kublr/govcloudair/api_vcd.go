@@ -112,7 +112,7 @@ func (c *VCDClient) vcdauthorize(user, pass, org string) error {
 	c.orgHREF = *u
 
 	queryLink := session.Link.ForType(types.MimeQueryList, types.RelDown)
-	if orgLink == nil {
+	if queryLink == nil {
 		return fmt.Errorf("cannot find a Query endpoint: type=%s, rel=%s", types.MimeQueryList, types.RelDown)
 	}
 	u, err = url.Parse(queryLink.HREF)
@@ -132,22 +132,6 @@ func (c *VCDClient) vcdauthorize(user, pass, org string) error {
 	c.sessionHREF = *u
 
 	return nil
-}
-
-func (c *VCDClient) GetOrg() (Org, error) {
-	req := c.Client.NewRequest(map[string]string{}, "GET", c.orgHREF, nil)
-	resp, err := checkResp(c.Client.Http.Do(req))
-	if err != nil {
-		return Org{}, errors.Wrapf(err, "cannot execute request: %s", c.orgHREF.String())
-	}
-	defer resp.Body.Close()
-
-	org := NewOrg(&c.Client)
-	if err = decodeBody(resp, org.Org); err != nil {
-		return Org{}, errors.Wrap(err, "cannot unmarshal response")
-	}
-
-	return *org, nil
 }
 
 func NewVCDClient(vcdEndpoint url.URL, insecure bool, apiVersion string) *VCDClient {
@@ -206,4 +190,46 @@ func (c *VCDClient) Disconnect() error {
 	defer resp.Body.Close()
 
 	return nil
+}
+
+// GetOrg returns Org object named c.orgName
+func (c *VCDClient) GetOrg() (Org, error) {
+
+	req := c.Client.NewRequest(map[string]string{}, "GET", c.orgHREF, nil)
+	resp, err := checkResp(c.Client.Http.Do(req))
+	if err != nil {
+		return Org{}, errors.Wrapf(err, "cannot execute request: %s", c.orgHREF.String())
+	}
+	defer resp.Body.Close()
+	org := NewOrg(&c.Client)
+	if err = decodeBody(resp, org.Org); err != nil {
+		return Org{}, errors.Wrapf(err, "cannot unmarshal response")
+	}
+	return *org, nil
+}
+
+// GetAdminOrg returns AdminOrg object linked from Org
+// AdminOrg used for create, update and delete operations
+func (c *VCDClient) GetAdminOrg() (AdminOrg, error) {
+	org, err := c.GetOrg()
+	if err != nil {
+		return AdminOrg{}, errors.Wrapf(err, "cannot get org: %s", c.orgHREF.String())
+	}
+
+	adminOrgHREF, err := org.Org.Link.URLForType(types.MimeAdminOrg, types.RelAlternate)
+	if err != nil {
+		return AdminOrg{}, err
+	}
+
+	req := c.Client.NewRequest(map[string]string{}, "GET", *adminOrgHREF, nil)
+	resp, err := checkResp(c.Client.Http.Do(req))
+	if err != nil {
+		return AdminOrg{}, errors.Wrapf(err, "cannot execute request: %s", (*adminOrgHREF).String())
+	}
+	defer resp.Body.Close()
+	adminOrg := NewAdminOrg(&c.Client)
+	if err = decodeBody(resp, adminOrg.AdminOrg); err != nil {
+		return AdminOrg{}, errors.Wrapf(err, "cannot unmarshal response")
+	}
+	return *adminOrg, nil
 }

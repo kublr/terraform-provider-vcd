@@ -97,6 +97,8 @@ const ApiVersion170 ApiVersionType = "17.0" // vCloud Air Compute Service
 const ApiVersion200 ApiVersionType = "20.0" // vCloud Director 8.10
 const ApiVersion270 ApiVersionType = "27.0" // vCloud Director 8.20
 const ApiVersion290 ApiVersionType = "29.0" // vCloud Director 9.0
+const ApiVersion300 ApiVersionType = "30.0" // vCloud Director 9.1
+const ApiVersion310 ApiVersionType = "31.0" // vCloud Director 9.5
 
 const ApiVersion ApiVersionType = ApiVersion90
 
@@ -1969,4 +1971,80 @@ func (v *VirtualHardwareSection) ConvertToOVF() *OVFVirtualHardwareSection {
 
 	ovf.Item = items
 	return &ovf
+}
+
+// AdminCatalog represents the Admin view of a Catalog object.
+type AdminCatalog struct {
+	XMLName                      xml.Name                      `xml:"AdminCatalog"`
+	Xmlns                        string                        `xml:"xmlns,attr"`
+	HREF                         string                        `xml:"href,attr,omitempty"`
+	Type                         string                        `xml:"type,attr,omitempty"`
+	ID                           string                        `xml:"id,attr,omitempty"`
+	OperationKey                 string                        `xml:"operationKey,attr,omitempty"`
+	Name                         string                        `xml:"name,attr"`
+	CatalogItems                 []*CatalogItems               `xml:"CatalogItems,omitempty"`
+	DateCreated                  string                        `xml:"DateCreated,omitempty"`
+	PublishExternalCatalogParams *PublishExternalCatalogParams `xml:"PublishExternalCatalogParams,omitempty"`
+	CatalogStorageProfiles       *CatalogStorageProfiles       `xml:"CatalogStorageProfiles,omitempty"`
+	ExternalCatalogSubscription  *ExternalCatalogSubscription  `xml:"ExternalCatalogSubscriptionParams,omitempty"`
+	Description                  string                        `xml:"Description"`
+	IsPublished                  bool                          `xml:"IsPublished,omitempty"`
+	Link                         LinkList                      `xml:"Link,omitempty"`
+	Owner                        *Owner                        `xml:"Owner,omitempty"`
+	Tasks                        *TasksInProgress              `xml:"Tasks,omitempty"`
+	VersionNumber                int64                         `xml:"VersionNumber"`
+}
+
+// PublishExternalCatalogParamsType represents the configuration parameters of a catalog published externally
+type PublishExternalCatalogParams struct {
+	IsCachedEnabled          bool   `xml:"IsCacheEnabled,omitempty"`
+	IsPublishedExternally    bool   `xml:"IsPublishedExternally,omitempty"`
+	Password                 string `xml:"Password,omitempty"`
+	PreserveIdentityInfoFlag bool   `xml:"PreserveIdentityInfoFlag,omitempty"`
+	CatalogPublishedUrl      string `xml:"catalogPublishedUrl,omitempty"`
+}
+
+// ExternalCatalogSubscription represents the configuration parameters for a catalog that has an external subscription
+type ExternalCatalogSubscription struct {
+	ExpectedSslThumbprint    bool   `xml:"ExpectedSslThumbprint,omitempty"`
+	LocalCopy                bool   `xml:"LocalCopy,omitempty"`
+	Password                 string `xml:"Password,omitempty"`
+	SubscribeToExternalFeeds bool   `xml:"SubscribeToExternalFeeds,omitempty"`
+	Location                 string `xml:"Location,omitempty"`
+}
+
+// CatalogStorageProfiles represents a container for storage profiles used by this catalog
+type CatalogStorageProfiles struct {
+	VdcStorageProfile []*Reference `xml:"VdcStorageProfile,omitempty"`
+}
+
+// AdminOrg represents the admin view of a vCloud Director organization.
+type AdminOrg struct {
+	XMLName      xml.Name         `xml:"AdminOrg"`
+	Xmlns        string           `xml:"xmlns,attr"`
+	HREF         string           `xml:"href,attr,omitempty"`
+	Type         string           `xml:"type,attr,omitempty"`
+	ID           string           `xml:"id,attr,omitempty"`
+	OperationKey string           `xml:"operationKey,attr,omitempty"`
+	Name         string           `xml:"name,attr"`
+	Description  string           `xml:"Description,omitempty"`
+	FullName     string           `xml:"FullName"`
+	IsEnabled    bool             `xml:"IsEnabled,omitempty"`
+	Link         LinkList         `xml:"Link,omitempty"`
+	Tasks        *TasksInProgress `xml:"Tasks,omitempty"`
+	//	OrgSettings  *OrgSettings     `xml:"Settings,omitempty"`
+	//	Vdcs         *VDCList         `xml:"Vdcs,omitempty"`
+	//	Networks     *NetworksList    `xml:"Networks,omitempty"`
+	Catalogs *CatalogsList `xml:"Catalogs,omitemtpy"`
+}
+
+// OrgList represents a lists of Organizations
+type OrgList struct {
+	Link LinkList `xml:"Link,omitempty"`
+	Org  []*Org   `xml:"Org,omitempty"`
+}
+
+// CatalogsList contains a list of references to Org Catalogs
+type CatalogsList struct {
+	Catalog ReferenceList `xml:"CatalogReference,omitempty"`
 }
