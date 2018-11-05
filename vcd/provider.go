@@ -74,6 +74,7 @@ func Provider() terraform.ResourceProvider {
 			"vcd_edgegateway_vpn": resourceVcdEdgeGatewayVpn(),
 			"vcd_vm":              resourceVcdVM(),
 			"vcd_catalog":         resourceVcdCatalog(),
+			"vcd_disk":            resourceVcdDisk(),
 		},
 
 		ConfigureFunc: providerConfigure,

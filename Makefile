@@ -45,9 +45,9 @@ prepare-release: clean build upload-binary
 .PHONY: prepare-release
 
 install: build
-	$(GOBINARY)  install
+	$(GOBINARY) install
 	mkdir -p $(HOME)/.terraform.d/plugins
-	mv $(BINARY) $(HOME)/.terraform.d/plugins/terraform-provider-vcd_v1.0.0_x4
+	mv $(GOPATH)/bin/terraform-provider-vcd $(HOME)/.terraform.d/plugins/terraform-provider-vcd_v1.0.0_x4
 .PHONY: install
 
 test: build

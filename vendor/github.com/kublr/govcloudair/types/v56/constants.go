@@ -27,6 +27,8 @@ const (
 )
 
 const (
+	// Empty Mime
+	MimeEmpty = ""
 	// MimeOrgList mime for org list
 	MimeOrgList = "application/vnd.vmware.vcloud.orgList+xml"
 	// MimeOrg mime for org
@@ -66,6 +68,14 @@ const (
 	// MimeMedia mime for Media object
 	MimeMedia             = "application/vnd.vmware.vcloud.media+xml"
 	MimeComposeVAppParams = "application/vnd.vmware.vcloud.composeVAppParams+xml"
+	//MimeDiskCreateParams mime for create independent disk
+	MimeDiskCreateParams = "application/vnd.vmware.vcloud.diskCreateParams+xml"
+	// Mime for attach or detach independent disk
+	MimeDiskAttachOrDetachParams = "application/vnd.vmware.vcloud.diskAttachOrDetachParams+xml"
+	// Mime for Disk
+	MimeDisk = "application/vnd.vmware.vcloud.disk+xml"
+	// Mime for VMs
+	MimeVMs = "application/vnd.vmware.vcloud.vms+xml"
 )
 
 const (
