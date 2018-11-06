@@ -9,7 +9,7 @@ GOARCH ?= amd64
 GOBINARY ?= go
 TAG ?= dev
 
-ARCHIVE=$(COMPONENT_NAME)-$(TAG)-$(value GOOS)-$(value GOARCH).tar.gz
+ARCHIVE=$(COMPONENT_NAME)-$(TAG)-$(value GOOS)-$(value GOARCH).zip
 BINARY=$(COMPONENT_NAME)-$(GOOS)-$(GOARCH)
 
 # All files excluding vendor
@@ -31,7 +31,7 @@ build: clean fmtcheck
 .PHONY: build
 
 upload-binary: build
-	tar -cvzf "$(ARCHIVE)" "$(BINARY)"
+	zip "$(ARCHIVE)" "$(BINARY)"
 	curl -v --progress-bar --user "$(REPO_USERNAME):$(REPO_PASSWORD)" --upload-file "$(ARCHIVE)" "$(GOBINARIES_REPO_URL)/$(COMPONENT_NAME)/$(COMPONENT_VERSION)/$(ARCHIVE)"
 .PHONY: upload-binary
 

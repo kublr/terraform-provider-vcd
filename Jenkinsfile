@@ -24,7 +24,7 @@ podTemplate(
   containers: [
   	        containerTemplate(name: 'jnlp',  image: 'jenkinsci/jnlp-slave', args: '${computer.jnlpmac} ${computer.name}'),
                 containerTemplate(name: 'slave', ttyEnabled: true, command: 'cat', args: '-v',
-                        image: 'nexus.build.svc.cluster.local:5000/jenkinsci/jnlp-slave-ext:0.1.15')
+                        image: 'nexus.build.svc.cluster.local:5000/jenkinsci/jnlp-slave-ext:0.1.16')
   ]) {
   node('kublrslave') {
     String buildStatus = 'Success'
@@ -51,14 +51,16 @@ podTemplate(
 	  // tag names are generated in different ways for release and non-release branches
 	  releaseBuild = (gitBranch in releaseBranches)
 	  // we need only release builds for the project
-	  publishVersion = releaseBuild ? srcVersion : "${srcVersion}-${branchQual}-${BUILD_NUMBER}"
+	  publishVersion = releaseBuild ? "${srcVersion}-${BUILD_NUMBER}" : "${srcVersion}-${branchQual}.${BUILD_NUMBER}"
 	  sh "echo ${publishVersion} > tag.txt"
 	  container('slave') {
 	    withCredentials([usernamePassword(credentialsId: 'ecp-nexus-ecp-build', passwordVariable: 'repoPassword', usernameVariable: 'repoUser')]) {
 	      sh """
                   REPO_PASSWORD='${repoPassword}' \
                   REPO_USERNAME='${repoUser}' \
-                  GOOS=linux TAG='${publishVersion}' make prepare-release
+                  GOOS=linux  TAG='${publishVersion}' make prepare-release
+                  GOOS=win    TAG='${publishVersion}' make prepare-release
+                  GOOS=darwin TAG='${publishVersion}' make prepare-release
                  """
 	    }
 	  }
