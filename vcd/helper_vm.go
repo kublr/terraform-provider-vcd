@@ -316,6 +316,7 @@ func createNetworkConnectionSection(networkConnections []map[string]interface{})
 			NetworkConnectionIndex:  index,
 			IsConnected:             network["is_connected"].(bool),
 			IPAddressAllocationMode: network["ip_allocation_mode"].(string),
+			IPAddress:               network["ip"].(string),
 			NetworkAdapterType:      network["adapter_type"].(string),
 		}
 	}
