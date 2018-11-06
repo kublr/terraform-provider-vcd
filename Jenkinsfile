@@ -58,9 +58,9 @@ podTemplate(
 	      sh """
                   REPO_PASSWORD='${repoPassword}' \
                   REPO_USERNAME='${repoUser}' \
-                  GOOS=linux  TAG='${publishVersion}' make prepare-release
-                  GOOS=win    TAG='${publishVersion}' make prepare-release
-                  GOOS=darwin TAG='${publishVersion}' make prepare-release
+                  GOOS=linux   TAG='${publishVersion}' make prepare-release
+                  GOOS=windows TAG='${publishVersion}' make prepare-release
+                  GOOS=darwin  TAG='${publishVersion}' make prepare-release
                  """
 	    }
 	  }
