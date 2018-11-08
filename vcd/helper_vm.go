@@ -68,7 +68,6 @@ func composeSourceItem(d *schema.ResourceData, meta interface{}) (*types.Sourced
 	if storageProfileName == "" {
 		storageProfileName, err = findDefaultStorageProfile(vcdClient)
 		if err != nil {
-
 			return nil, errors.Wrapf(err, "cannot find default storage profile")
 		}
 	}

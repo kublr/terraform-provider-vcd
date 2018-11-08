@@ -23,6 +23,10 @@ func resourceVcdDisk() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"size": {
 				Type:         schema.TypeString,
 				Required:     true,
@@ -32,9 +36,20 @@ func resourceVcdDisk() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"description": {
+			"bus_type": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
+			},
+			"bus_sub_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+			"storage_profile": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 		},
 	}
@@ -60,9 +75,23 @@ func resourceVcdDiskCreate(d *schema.ResourceData, meta interface{}) error {
 
 	diskCreateParamsDisk := &types.Disk{
 		Name:        diskName,
+		Description: d.Get("description").(string),
 		Size:        int(diskSize),
 		Iops:        &diskIops,
-		Description: d.Get("description").(string),
+		BusType:     d.Get("bus_type").(string),
+		BusSubType:  d.Get("bus_sub_type").(string),
+	}
+
+	storageProfileName := d.Get("storage_profile").(string)
+	if storageProfileName != "" {
+		storageProfile, err := vcdClient.OrgVdc.FindStorageProfileReference(storageProfileName)
+		if err != nil {
+			return err
+		}
+
+		diskCreateParamsDisk.StorageProfile = &storageProfile
+	} else {
+		diskCreateParamsDisk.StorageProfile = nil
 	}
 
 	diskCreateParams := &types.DiskCreateParams{
@@ -82,7 +111,7 @@ func resourceVcdDiskCreate(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(d.Get("name").(string))
 
-	return nil
+	return resourceVcdDiskRead(d, meta)
 }
 
 func resourceVcdDiskUpdate(d *schema.ResourceData, meta interface{}) error {
@@ -105,9 +134,23 @@ func resourceVcdDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	diskNewParams := &types.Disk{
 		Name:        diskName,
+		Description: d.Get("description").(string),
 		Size:        int(diskSize),
 		Iops:        &diskIops,
-		Description: d.Get("description").(string),
+		BusType:     d.Get("bus_type").(string),
+		BusSubType:  d.Get("bus_sub_type").(string),
+	}
+
+	storageProfileName := d.Get("storage_profile").(string)
+	if storageProfileName != "" {
+		storageProfile, err := vcdClient.OrgVdc.FindStorageProfileReference(storageProfileName)
+		if err != nil {
+			return err
+		}
+
+		diskNewParams.StorageProfile = &storageProfile
+	} else {
+		diskNewParams.StorageProfile = nil
 	}
 
 	log.Printf("[INFO] Update disk '%s'", diskName)
@@ -140,9 +183,14 @@ func resourceVcdDiskRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("name", disk.Disk.Name)
+	d.Set("description", disk.Disk.Description)
 	d.Set("size", disk.Disk.Size)
 	d.Set("iops", disk.Disk.Iops)
-	d.Set("description", disk.Disk.Description)
+	d.Set("bus_type", disk.Disk.BusType)
+	d.Set("bus_sub_type", disk.Disk.BusSubType)
+	if disk.Disk.StorageProfile != nil {
+		d.Set("storage_profile", disk.Disk.StorageProfile.Name)
+	}
 
 	return nil
 }
