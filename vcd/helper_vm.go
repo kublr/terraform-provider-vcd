@@ -321,9 +321,9 @@ func createNetworkConnectionSection(networkConnections []map[string]interface{})
 	}
 
 	newNetwork := &types.NetworkConnectionSection{
-		Xmlns:                         "http://www.vmware.com/vcloud/v1.5",
-		Ovf:                           "http://schemas.dmtf.org/ovf/envelope/1",
-		Info:                          "Specifies the available VM network connections",
+		Xmlns: "http://www.vmware.com/vcloud/v1.5",
+		Ovf:   "http://schemas.dmtf.org/ovf/envelope/1",
+		Info:  "Specifies the available VM network connections",
 		PrimaryNetworkConnectionIndex: primaryNetworkConnectionIndex,
 		NetworkConnection:             newNetworkConnections,
 	}

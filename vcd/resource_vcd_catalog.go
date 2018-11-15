@@ -47,6 +47,11 @@ func resourceVcdCatalogCreate(d *schema.ResourceData, meta interface{}) error {
 			}
 			return resource.RetryableError(task.WaitTaskCompletion())
 		})
+
+		if err != nil {
+			return fmt.Errorf("Error completing tasks: %#v", err)
+		}
+
 		err = vcdClient.Org.Refresh()
 		if err != nil {
 			return fmt.Errorf("error refreshing org: %#v", err)
@@ -146,6 +151,10 @@ func resourceVcdCatalogDelete(d *schema.ResourceData, meta interface{}) error {
 		log.Printf("[DEBUG] Waiting until catalog %s deleted", d.Id())
 		return resource.RetryableError(errors.Errorf("Catalog %s is not deleted yet", d.Id()))
 	})
+
+	if err != nil {
+		return fmt.Errorf("Error completing tasks: %#v", err)
+	}
 
 	return nil
 }

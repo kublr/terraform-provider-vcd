@@ -109,6 +109,10 @@ func resourceVcdDiskCreate(d *schema.ResourceData, meta interface{}) error {
 		return resource.RetryableError(task.WaitTaskCompletion())
 	})
 
+	if err != nil {
+		return fmt.Errorf("Error completing tasks: %#v", err)
+	}
+
 	d.SetId(d.Get("name").(string))
 
 	return resourceVcdDiskRead(d, meta)
@@ -164,6 +168,10 @@ func resourceVcdDiskUpdate(d *schema.ResourceData, meta interface{}) error {
 		return resource.RetryableError(task.WaitTaskCompletion())
 	})
 
+	if err != nil {
+		return fmt.Errorf("Error completing tasks: %#v", err)
+	}
+
 	return resourceVcdDiskRead(d, meta)
 }
 
@@ -211,6 +219,10 @@ func resourceVcdDiskDelete(d *schema.ResourceData, meta interface{}) error {
 
 		return resource.RetryableError(task.WaitTaskCompletion())
 	})
+
+	if err != nil {
+		return fmt.Errorf("Error completing tasks: %#v", err)
+	}
 
 	return nil
 }
