@@ -56,8 +56,8 @@ podTemplate(
 	  container('slave') {
 	    withCredentials([usernamePassword(credentialsId: 'ecp-nexus-ecp-build', passwordVariable: 'repoPassword', usernameVariable: 'repoUser')]) {
 	      sh """
-                  REPO_PASSWORD='${repoPassword}' \
-                  REPO_USERNAME='${repoUser}' \
+                  export REPO_PASSWORD='${repoPassword}'
+                  export REPO_USERNAME='${repoUser}'
                   GOOS=linux make test
                   GOOS=linux   TAG='${publishVersion}' make prepare-release
                   GOOS=windows TAG='${publishVersion}' make prepare-release
