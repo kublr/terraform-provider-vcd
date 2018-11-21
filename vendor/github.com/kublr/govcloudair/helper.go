@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/kublr/govcloudair/types/v56"
 )
@@ -42,4 +43,15 @@ func ExecuteRequest(payload, path, type_, contentType string, client *Client) (T
 	}
 
 	return *task, nil
+}
+
+// Extract ID from an URN.
+// 'urn:vcloud:catalog:39867ab4-04e0-4b13-b468-08abcc1de810' will produce '39867ab4-04e0-4b13-b468-08abcc1de810'
+func ExtractID(urn string) string {
+	parts := strings.Split(urn, ":")
+	if len(parts) > 0 {
+		return parts[len(parts)-1]
+	}
+
+	return urn
 }

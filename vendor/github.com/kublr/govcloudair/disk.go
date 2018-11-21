@@ -143,7 +143,6 @@ func (vdc *Vdc) FindDiskByHREF(href string) (*Disk, error) {
 func (vdc *Vdc) FindDiskByName(diskName string) (*Disk, error) {
 	for _, resourceEntity := range vdc.Vdc.ResourceEntities {
 		for _, entity := range resourceEntity.ResourceEntity {
-			fmt.Printf("resource reference: '%+v'\n", *entity)
 			if entity.Type == types.MimeDisk && entity.Name == diskName {
 				return FindDiskByHREF(vdc.c, entity.HREF)
 			}
