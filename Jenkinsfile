@@ -9,6 +9,20 @@ static def summarizeBuild(b) {
     }.join('\n')
 }
 
+repositories = [
+        prod: [
+                branch        : ['master', 'release/.*'],
+	        goRepoUrl     : "https://repo.kublr.com/repository/gobinaries",
+                credentialsId : "jenkins-nexus-beta"
+        ],
+        any : [
+                branch        : ['.*'],
+	        goRepoUrl     : "https://nexus.ecp.eastbanctech.com/repository/gobinaries",
+                credentialsId : "ecp-nexus-ecp-build"
+        ]
+]
+
+
 def srcVersion = null
 def publishVersion = null
 def gitCommit = null
@@ -54,15 +68,20 @@ podTemplate(
 	  publishVersion = releaseBuild ? "${srcVersion}-${BUILD_NUMBER}" : "${srcVersion}-${branchQual}.${BUILD_NUMBER}"
 	  sh "echo ${publishVersion} > tag.txt"
 	  container('slave') {
-	    withCredentials([usernamePassword(credentialsId: 'ecp-nexus-ecp-build', passwordVariable: 'repoPassword', usernameVariable: 'repoUser')]) {
-	      sh """
+	    def repos = repositoryMatch()
+	    repos.each { repoName, repo ->
+	      println "publish in repository ${repoName}"
+	      withCredentials([usernamePassword(credentialsId: repo.credentialsId, passwordVariable: 'repoPassword', usernameVariable: 'repoUser'), ])  {
+		sh """
                   export REPO_PASSWORD='${repoPassword}'
                   export REPO_USERNAME='${repoUser}'
+                  export GOBINARIES_REPO_URL='${repo.goRepoUrl}'
                   GOOS=linux make test
                   GOOS=linux   TAG='${publishVersion}' make prepare-release
                   GOOS=windows TAG='${publishVersion}' make prepare-release
                   GOOS=darwin  TAG='${publishVersion}' make prepare-release
                  """
+	      }
 	    }
 	  }
 	}
@@ -102,4 +121,35 @@ podTemplate(
       }
     }    
   }
+}
+
+String getBranchName() {
+    String gitBranch = sh returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD'
+    return gitBranch.trim()
+}
+// Find all the repositories in which the pattern matches the branch
+def repositoryMatch() {
+  def result = [:]
+  String branchName = getBranchName()
+  println "branchName ${branchName}"
+
+  repositories.any { repoName, repo ->
+    def match = false
+    repo.branch.any { branch ->
+      if (branchName.matches(branch)) {
+	match = true
+	return false // break closure
+      }
+    }
+
+    if (match) {
+      ['goRepoUrl', 'credentialsId'].each { field ->
+	if (!repo.containsKey(field) || repo[field] == null) {
+	  error "'${field}' field must be set for repository ${repoName}"
+	}
+      }
+      result.put(repoName, repo)
+    }
+  }
+  return result
 }
