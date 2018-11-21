@@ -13,7 +13,7 @@ def srcVersion = null
 def publishVersion = null
 def gitCommit = null
 def gitBranch = null
-def releaseBranches = ['master', 'release/.*']
+def releaseBranches = ['master', 'release/.*', 'EDS-3531']
 def releaseBuild = false
 def quickBuild = false
 def gitTaggerEmail = 'mvasilev@kublr.com'
@@ -56,8 +56,8 @@ podTemplate(
 	  container('slave') {
 	    withCredentials([usernamePassword(credentialsId: 'ecp-nexus-ecp-build', passwordVariable: 'repoPassword', usernameVariable: 'repoUser')]) {
 	      sh """
-                  REPO_PASSWORD='${repoPassword}' \
-                  REPO_USERNAME='${repoUser}' \
+                  export REPO_PASSWORD='${repoPassword}'
+                  export REPO_USERNAME='${repoUser}'
                   GOOS=linux make test
                   GOOS=linux   TAG='${publishVersion}' make prepare-release
                   GOOS=windows TAG='${publishVersion}' make prepare-release
