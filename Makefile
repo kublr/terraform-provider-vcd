@@ -10,7 +10,8 @@ GOARCH ?= amd64
 TAG ?= dev
 
 ARCHIVE=$(COMPONENT_NAME)-$(TAG)-$(value GOOS)-$(value GOARCH).zip
-BINARY=$(COMPONENT_NAME)-$(GOOS)-$(GOARCH)
+#BINARY=$(COMPONENT_NAME)-$(GOOS)-$(GOARCH)
+BINARY=$(COMPONENT_NAME)_v$(COMPONENT_VERSION)_x4
 
 # All files excluding vendor
 FILES=$$($(GOBINARY) list ./... | grep -v /vendor/ | grep -v /gen/)
