@@ -54,22 +54,20 @@ func readVApp(d *schema.ResourceData, meta interface{}) error {
 			return err
 		}
 
-		if vAppNetwork != nil {
-			vAppNetworkResource.Set("name",
-				vAppNetwork.NetworkName)
-			// vAppNetworkResource.Set("description", vAppnetwork.Configuration)
+		if vAppNetwork != nil && vAppNetwork.Configuration != nil {
+			vAppNetworkResource.Set("name", vAppNetwork.NetworkName)
 			vAppNetworkResource.Set("gateway",
-				vAppNetwork.Configuration.IPScope.Gateway)
+				vAppNetwork.Configuration.IPScopes.IPScope[0].Gateway)
 			vAppNetworkResource.Set("netmask",
-				vAppNetwork.Configuration.IPScope.Netmask)
+				vAppNetwork.Configuration.IPScopes.IPScope[0].Netmask)
 			vAppNetworkResource.Set("dns1",
-				vAppNetwork.Configuration.IPScope.DNS1)
+				vAppNetwork.Configuration.IPScopes.IPScope[0].DNS1)
 			vAppNetworkResource.Set("dns2",
-				vAppNetwork.Configuration.IPScope.DNS2)
+				vAppNetwork.Configuration.IPScopes.IPScope[0].DNS2)
 			vAppNetworkResource.Set("start",
-				vAppNetwork.Configuration.IPScope.IPRanges.IPRange[0].StartAddress)
+				vAppNetwork.Configuration.IPScopes.IPScope[0].IPRanges.IPRange[0].StartAddress)
 			vAppNetworkResource.Set("end",
-				vAppNetwork.Configuration.IPScope.IPRanges.IPRange[0].EndAddress)
+				vAppNetwork.Configuration.IPScopes.IPScope[0].IPRanges.IPRange[0].EndAddress)
 
 			if vAppNetwork.Configuration.ParentNetwork != nil {
 				vAppNetworkResource.Set("parent",
@@ -129,19 +127,21 @@ func createNetworkConfiguration(d *schema.ResourceData, meta interface{}) ([]*ty
 		configuration := &types.NetworkConfiguration{
 			FenceMode: types.FenceModeIsolated,
 			Features:  &types.NetworkFeatures{},
-			IPScope: &types.IPScope{
-				IsInherited: false,
-				Gateway:     vAppNetwork.Get("gateway").(string),
-				Netmask:     vAppNetwork.Get("netmask").(string),
-				DNS1:        vAppNetwork.Get("dns1").(string),
-				DNS2:        vAppNetwork.Get("dns2").(string),
-				IsEnabled:   true,
-				IPRanges: &types.IPRanges{
-					IPRange: []*types.IPRange{&types.IPRange{
-						StartAddress: vAppNetwork.Get("start").(string),
-						EndAddress:   vAppNetwork.Get("end").(string),
-					}},
-				},
+			IPScopes: &types.IPScopes{
+				IPScope: []*types.IPScope{{
+					IsInherited: false,
+					Gateway:     vAppNetwork.Get("gateway").(string),
+					Netmask:     vAppNetwork.Get("netmask").(string),
+					DNS1:        vAppNetwork.Get("dns1").(string),
+					DNS2:        vAppNetwork.Get("dns2").(string),
+					IsEnabled:   true,
+					IPRanges: &types.IPRanges{
+						IPRange: []*types.IPRange{{
+							StartAddress: vAppNetwork.Get("start").(string),
+							EndAddress:   vAppNetwork.Get("end").(string),
+						}},
+					},
+				}},
 			},
 		}
 
@@ -152,10 +152,12 @@ func createNetworkConfiguration(d *schema.ResourceData, meta interface{}) ([]*ty
 					StartAddress: vAppNetwork.Get("dhcp_start").(string),
 					EndAddress:   vAppNetwork.Get("dhcp_end").(string),
 				},
-				PrimaryNameServer:   configuration.IPScope.DNS1,
-				SecondaryNameServer: configuration.IPScope.DNS1,
-				SubMask:             configuration.IPScope.Netmask,
-				RouterIP:            configuration.IPScope.Gateway,
+				PrimaryNameServer:   configuration.IPScopes.IPScope[0].DNS1,
+				SecondaryNameServer: configuration.IPScopes.IPScope[0].DNS1,
+				SubMask:             configuration.IPScopes.IPScope[0].Netmask,
+				RouterIP:            configuration.IPScopes.IPScope[0].Gateway,
+				DefaultLeaseTime:    3600,
+				MaxLeaseTime:        7200,
 			}
 		}
 

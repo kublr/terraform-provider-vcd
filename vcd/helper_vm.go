@@ -85,7 +85,7 @@ func composeSourceItem(d *schema.ResourceData, meta interface{}) (*types.Sourced
 func configureVM(d *schema.ResourceData, vm *govcd.VM, meta interface{}) error {
 	vcdClient := meta.(*VCDClient)
 
-	// Remove network hardware from virtualhw list.
+	// Remove network hardware from virtual hw list.
 	vm.RemoveVirtualHardwareItemByResourceType(types.ResourceTypeEthernet)
 
 	// // Some changes requires the VM to be off or restarted
@@ -321,9 +321,9 @@ func createNetworkConnectionSection(networkConnections []map[string]interface{})
 	}
 
 	newNetwork := &types.NetworkConnectionSection{
-		Xmlns: "http://www.vmware.com/vcloud/v1.5",
-		Ovf:   "http://schemas.dmtf.org/ovf/envelope/1",
-		Info:  "Specifies the available VM network connections",
+		Xmlns:                         "http://www.vmware.com/vcloud/v1.5",
+		Ovf:                           "http://schemas.dmtf.org/ovf/envelope/1",
+		Info:                          "Specifies the available VM network connections",
 		PrimaryNetworkConnectionIndex: primaryNetworkConnectionIndex,
 		NetworkConnection:             newNetworkConnections,
 	}

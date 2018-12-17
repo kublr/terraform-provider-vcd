@@ -15,6 +15,10 @@ func GetVersionHeader(version types.ApiVersionType) (key, value string) {
 	return "Accept", fmt.Sprintf("application/*+xml;version=%s", version)
 }
 
+func GetAuthorizationHeader(token string) (key, value string) {
+	return "x-vcloud-authorization", token
+}
+
 func ExecuteRequest(payload, path, type_, contentType string, client *Client) (Task, error) {
 	s, _ := url.ParseRequestURI(path)
 

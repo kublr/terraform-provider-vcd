@@ -32,15 +32,9 @@ func NewDisk(cli *Client) *Disk {
 // https://vdc-download.vmware.com/vmwb-repository/dcr-public/1b6cf07d-adb3-4dba-8c47-9c1c92b04857/
 // 241956dd-e128-4fcc-8131-bf66e1edd895/vcloud_sp_api_guide_30_0.pdf
 func (vdc *Vdc) CreateDisk(diskCreateParams *types.DiskCreateParams) (Task, error) {
-	execLink := vdc.Vdc.Link.ForType(types.MimeDiskCreateParams, types.RelAdd)
-	if execLink == nil {
-		return Task{}, fmt.Errorf("exec link not found")
-	}
-
-	// Parse request URI
-	reqUrl, err := url.ParseRequestURI(execLink.HREF)
+	u, err := vdc.Vdc.Link.URLForType(types.MimeDiskCreateParams, types.RelAdd)
 	if err != nil {
-		return Task{}, fmt.Errorf("error parse URI: %s", err)
+		return Task{}, err
 	}
 
 	// Prepare the request payload
@@ -52,8 +46,8 @@ func (vdc *Vdc) CreateDisk(diskCreateParams *types.DiskCreateParams) (Task, erro
 	}
 
 	// Send Request
-	req := vdc.c.NewRequest(nil, http.MethodPost, *reqUrl, bytes.NewBufferString(xml.Header+string(xmlPayload)))
-	req.Header.Add("Content-Type", execLink.Type)
+	req := vdc.c.NewRequest(nil, http.MethodPost, *u, bytes.NewBufferString(xml.Header+string(xmlPayload)))
+	req.Header.Add("Content-Type", types.MimeDiskCreateParams)
 	resp, err := checkResp(vdc.c.Http.Do(req))
 	if err != nil {
 		return Task{}, fmt.Errorf("error create disk: %s", err)
@@ -80,19 +74,13 @@ func (vdc *Vdc) CreateDisk(diskCreateParams *types.DiskCreateParams) (Task, erro
 // https://vdc-download.vmware.com/vmwb-repository/dcr-public/1b6cf07d-adb3-4dba-8c47-9c1c92b04857/
 // 241956dd-e128-4fcc-8131-bf66e1edd895/vcloud_sp_api_guide_30_0.pdf
 func (d *Disk) Delete() (Task, error) {
-	execLink := d.Disk.Link.ForType(types.MimeEmpty, types.RelRemove)
-	if execLink == nil {
-		return Task{}, fmt.Errorf("exec link not found")
-	}
-
-	// Parse request URI
-	reqUrl, err := url.ParseRequestURI(execLink.HREF)
+	u, err := d.Disk.Link.URLForType(types.MimeEmpty, types.RelRemove)
 	if err != nil {
-		return Task{}, fmt.Errorf("error parse uri: %s", err)
+		return Task{}, err
 	}
 
 	// Make request
-	req := d.client.NewRequest(nil, http.MethodDelete, *reqUrl, nil)
+	req := d.client.NewRequest(nil, http.MethodDelete, *u, nil)
 	resp, err := checkResp(d.client.Http.Do(req))
 	if err != nil {
 		return Task{}, fmt.Errorf("error delete disk: %s", err)
@@ -174,15 +162,9 @@ func (d *Disk) Refresh() error {
 // https://vdc-download.vmware.com/vmwb-repository/dcr-public/1b6cf07d-adb3-4dba-8c47-9c1c92b04857/
 // 241956dd-e128-4fcc-8131-bf66e1edd895/vcloud_sp_api_guide_30_0.pdf
 func (d *Disk) Update(newDiskInfo *types.Disk) (Task, error) {
-	execLink := d.Disk.Link.ForType(types.MimeDisk, types.RelEdit)
-	if execLink == nil {
-		return Task{}, fmt.Errorf("exec link not found")
-	}
-
-	// Parse request URI
-	reqUrl, err := url.ParseRequestURI(execLink.HREF)
+	u, err := d.Disk.Link.URLForType(types.MimeDisk, types.RelEdit)
 	if err != nil {
-		return Task{}, fmt.Errorf("error parse URI: %s", err)
+		return Task{}, err
 	}
 
 	// Prepare the request payload
@@ -199,8 +181,8 @@ func (d *Disk) Update(newDiskInfo *types.Disk) (Task, error) {
 	}
 
 	// Send request
-	req := d.client.NewRequest(nil, http.MethodPut, *reqUrl, bytes.NewBufferString(xml.Header+string(xmlPayload)))
-	req.Header.Add("Content-Type", execLink.Type)
+	req := d.client.NewRequest(nil, http.MethodPut, *u, bytes.NewBufferString(xml.Header+string(xmlPayload)))
+	req.Header.Add("Content-Type", types.MimeDisk)
 	resp, err := checkResp(d.client.Http.Do(req))
 	if err != nil {
 		return Task{}, fmt.Errorf("error find disk: %s", err)
@@ -224,21 +206,14 @@ func (d *Disk) Update(newDiskInfo *types.Disk) (Task, error) {
 // https://vdc-download.vmware.com/vmwb-repository/dcr-public/1b6cf07d-adb3-4dba-8c47-9c1c92b04857/
 // 241956dd-e128-4fcc-8131-bf66e1edd895/vcloud_sp_api_guide_30_0.pdf
 func (d *Disk) AttachedVM() (*types.Reference, error) {
-	execLink := d.Disk.Link.ForType(types.MimeVMs, types.RelDown)
-
-	if execLink == nil {
+	u, err := d.Disk.Link.URLForType(types.MimeVMs, types.RelDown)
+	if err != nil {
 		return nil, fmt.Errorf("exec link not found")
 	}
 
-	// Parse request URI
-	reqUrl, err := url.ParseRequestURI(execLink.HREF)
-	if err != nil {
-		return nil, fmt.Errorf("error parse uri: %s", err)
-	}
-
 	// Send request
-	req := d.client.NewRequest(nil, http.MethodGet, *reqUrl, nil)
-	req.Header.Add("Content-Type", execLink.Type)
+	req := d.client.NewRequest(nil, http.MethodGet, *u, nil)
+	req.Header.Add("Content-Type", types.MimeVMs)
 	resp, err := checkResp(d.client.Http.Do(req))
 	if err != nil {
 		return nil, fmt.Errorf("error attached vms: %s", err)

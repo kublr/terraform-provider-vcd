@@ -1,23 +1,6 @@
 package types
 
 const (
-	// PublicCatalog Name
-	PublicCatalog = "Public Catalog"
-
-	// DefaultCatalog Name
-	DefaultCatalog = "Default Catalog"
-
-	// JSONMimeV57 the json mime for version 5.7 of the API
-	JSONMimeV57 = "application/json;version=5.7"
-	// AnyXMLMime511 the wildcard xml mime for version 5.11 of the API
-	AnyXMLMime511 = "application/*+xml;version=5.11"
-	// Version511 the 5.11 version
-	Version511 = "5.11"
-	// Version is the default version number
-	Version = Version511
-)
-
-const (
 	// NsOvf the ovf xml namespace url
 	NsOvf = "http://schemas.dmtf.org/ovf/envelope/1"
 	// NsXMLSchema the xml schema namespace url

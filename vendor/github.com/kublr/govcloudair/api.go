@@ -20,9 +20,8 @@ import (
 type Client struct {
 	APIVersion string
 
-	VCDEndpoint   url.URL
-	VCDToken      string // Access Token (authorization header)
-	VCDAuthHeader string // Authorization header
+	VCDEndpoint url.URL
+	VCDToken    string // Access Token (authorization header)
 
 	Http http.Client // HttpClient is the client to use. Default will be used if not provided.
 }
@@ -30,7 +29,6 @@ type Client struct {
 // NewRequest creates a new HTTP request and applies necessary auth headers if
 // set.
 func (c *Client) NewRequest(params map[string]string, method string, u url.URL, body io.Reader) *http.Request {
-
 	p := url.Values{}
 
 	// Build up our request parameters
@@ -46,15 +44,12 @@ func (c *Client) NewRequest(params map[string]string, method string, u url.URL, 
 	// error only if can't process an url.ParseRequestURI().
 	req, _ := http.NewRequest(method, u.String(), body)
 
-	if c.VCDAuthHeader != "" && c.VCDToken != "" {
-		// Add the authorization header
-		req.Header.Add(c.VCDAuthHeader, c.VCDToken)
-		// Add the Accept header for VCD
+	if c.VCDToken != "" {
+		req.Header.Add(GetAuthorizationHeader(c.VCDToken))
 		req.Header.Add(GetVersionHeader(c.APIVersion))
 	}
 
 	return req
-
 }
 
 // parseErr takes an error XML resp and returns a single string for use in error messages.

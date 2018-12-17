@@ -92,7 +92,6 @@ func (c *VCDClient) vcdauthorize(user, pass, org string) error {
 
 	// Store the authentication header
 	c.Client.VCDToken = resp.Header.Get("x-vcloud-authorization")
-	c.Client.VCDAuthHeader = "x-vcloud-authorization"
 
 	session := new(session)
 	err = decodeBody(resp, session)
@@ -171,18 +170,11 @@ func (c *VCDClient) Authenticate(username, password, org string) error {
 
 // Disconnect performs a disconnection from the vCloud Director API endpoint.
 func (c *VCDClient) Disconnect() error {
-	if c.Client.VCDToken == "" && c.Client.VCDAuthHeader == "" {
+	if c.Client.VCDToken == "" {
 		return fmt.Errorf("cannot disconnect, client is not authenticated")
 	}
 
 	req := c.Client.NewRequest(map[string]string{}, "DELETE", c.sessionHREF, nil)
-
-	// Add the Accept header for vCA
-	req.Header.Add(GetVersionHeader(types.ApiVersion90))
-
-	// Set Authorization Header
-	req.Header.Add(c.Client.VCDAuthHeader, c.Client.VCDToken)
-
 	resp, err := checkResp(c.Client.Http.Do(req))
 	if err != nil {
 		return fmt.Errorf("error processing session delete for vCloud Director: %s", err)

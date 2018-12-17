@@ -13,11 +13,11 @@ website/build
 website/node_modules
 .vagrant/
 *.backup
-./*.tfstate
 .terraform/
 *.log
 *.bak
 *~
+.*.swp
 .*.swp
 .idea
 *.iml
@@ -30,4 +30,4 @@ website/vendor
 !command/test-fixtures/**/*.tfstate
 !command/test-fixtures/**/.terraform/
 
-terraform-provider-vcd-*
+terraform-provider-vcd*

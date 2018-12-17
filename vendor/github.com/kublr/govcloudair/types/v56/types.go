@@ -89,18 +89,13 @@ const XMLNamespaceVSSD XMLNamespace = "http://schemas.dmtf.org/wbem/wscim/1/cim-
 // https://vdc-download.vmware.com/vmwb-repository/dcr-public/3ae3f17c-6666-4efa-83bd-3dae5031d559/08a66e37-540e-4987-85b0-ba1cdd40f7c6/vcloud_sp_api_guide_29_0.pdf
 type ApiVersionType = string
 
-const ApiVersion55 ApiVersionType = "5.5"   // vCloud Director 5.5
-const ApiVersion56 ApiVersionType = "5.6"   // vCloud Director 5.6
-const ApiVersion90 ApiVersionType = "9.0"   // vCloud Director 8.0
-const ApiVersion130 ApiVersionType = "13.0" // vCloud Air Compute Service
-const ApiVersion170 ApiVersionType = "17.0" // vCloud Air Compute Service
 const ApiVersion200 ApiVersionType = "20.0" // vCloud Director 8.10
 const ApiVersion270 ApiVersionType = "27.0" // vCloud Director 8.20
 const ApiVersion290 ApiVersionType = "29.0" // vCloud Director 9.0
 const ApiVersion300 ApiVersionType = "30.0" // vCloud Director 9.1
 const ApiVersion310 ApiVersionType = "31.0" // vCloud Director 9.5
 
-const ApiVersion ApiVersionType = ApiVersion90
+const ApiVersion ApiVersionType = ApiVersion200
 
 type UndeployPowerAction = string
 
@@ -111,6 +106,28 @@ const UndeployPowerActionForce UndeployPowerAction = "force"
 const UndeployPowerActionDefault UndeployPowerAction = "default"
 
 // VCD API
+
+// SupportedVersions represents a list of all supported versions.
+// Type: SupportedVersionsType
+// Namespace: http://www.vmware.com/vcloud/versions
+// Description: List all supported versions.
+// Since: 0.9
+type SupportedVersions struct {
+	VersionInfo []*VersionInfo `xml:"VersionInfo,omitempty"` // Information about one version of the API.
+}
+
+// VersionInfo represents information for one version of the API.
+// Type: VersionInfoType
+// Namespace: http://www.vmware.com/vcloud/versions
+// Description: Information for one version of the API.
+// Since: 0.9
+type VersionInfo struct {
+	// Attributes
+	Deprecated bool `xml:"deprecated,omitempty,attr"` // Indicates whether the API version is deprecated for upcoming removal.
+	// Elements
+	LoginUrl string `xml:"LoginUrl,omitempty"` // Login URL for the version.
+	Version  string `xml:"Version,omitempty"`  // Version string.
+}
 
 // DefaultStorageProfileSection is the name of the storage profile that will be specified for this virtual machine. The named storage profile must exist in the organization vDC that contains the virtual machine. If not specified, the default storage profile for the vDC is used.
 // Type: DefaultStorageProfileSection_Type
@@ -203,13 +220,22 @@ type IPAddresses struct {
 	IPAddress string `xml:"IpAddress,omitempty"` // An IP address.
 }
 
-// IPRanges representsa list of IP ranges.
+// IPRanges represents a list of IP ranges.
 // Type: IpRangesType
 // Namespace: http://www.vmware.com/vcloud/v1.5
 // Description: Represents a list of IP ranges.
 // Since: 0.9
 type IPRanges struct {
 	IPRange []*IPRange `xml:"IpRange,omitempty"` // IP range.
+}
+
+// IPScopes represents a list of IP scopes.
+// Type: IpScopesType
+// Namespace: http://www.vmware.com/vcloud/v1.5
+// Represents a list of IP scopes.
+// Since: 5.1
+type IPScopes struct {
+	IPScope []*IPScope `xml:"IpScope,omitempty"` // IP scope.
 }
 
 // IPScope specifies network settings like gateway, network mask, DNS servers IP ranges etc
@@ -261,7 +287,7 @@ type SubAllocation struct {
 // Since: 0.9
 type NetworkConfiguration struct {
 	BackwardCompatibilityMode      bool                  `xml:"BackwardCompatibilityMode"`
-	IPScope                        *IPScope              `xml:"IpScope,omitempty"`
+	IPScopes                       *IPScopes             `xml:"IpScopes,omitempty"`
 	ParentNetwork                  *Reference            `xml:"ParentNetwork,omitempty"`
 	FenceMode                      FenceMode             `xml:"FenceMode"`
 	RetainNetInfoAcrossDeployments bool                  `xml:"RetainNetInfoAcrossDeployments"`
