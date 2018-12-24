@@ -1770,6 +1770,10 @@ type QueryResultRecordsType struct {
 	EdgeGatewayRecord          []*QueryResultEdgeGatewayRecordType          `xml:"EdgeGatewayRecord"`          // A record representing a EdgeGateway result.
 	VMRecord                   []*QueryResultVMRecordType                   `xml:"VMRecord"`                   // A record representing a VM result.
 	VAppRecord                 []*QueryResultVAppRecordType                 `xml:"VAppRecord"`                 // A record representing a VApp result.
+	OrgVdcRecord               []*QueryResultOrgVdcRecordType               `xml:"OrgVdcRecord"`               // A record representing VDC
+	OrgVdcNetworkRecord        []*QueryResultOrgVdcNetworkRecordType        `xml:"OrgVdcNetworkRecord"`        // A record representing Org VDC Network
+	CatalogRecord              []*QueryResultCatalogRecordType              `xml:"CatalogRecord"`              // A record representing Catalog Record
+	VAppTemplateRecord         []*QueryResultVAppTemplateRecordType         `xml:"VAppTemplateRecord"`         // A record representing vApp Template Record
 	OrgVdcStorageProfileRecord []*QueryResultOrgVdcStorageProfileRecordType `xml:"OrgVdcStorageProfileRecord"` // A record representing storage profiles
 }
 
@@ -1849,6 +1853,119 @@ type QueryResultVAppRecordType struct {
 	TaskStatusName          string `xml:"taskStatusName,attr,omitempty"`
 	TaskStatus              string `xml:"TaskStatus,attr,omitempty"`
 	TaskDetails             string `xml:"taskDetails,attr,omitempty"`
+}
+
+// QueryResultOrgVdcRecordType represents all VDC in organization
+type QueryResultOrgVdcRecordType struct {
+	// Attributes
+	HREF                    string `xml:"href,attr,omitempty"`    // The URI of the entity.
+	Name                    string `xml:"name,attr,omitempty"`    // VDC name.
+	OrgName                 string `xml:"orgName,attr,omitempty"` // org name.
+	CpuAllocationMhz        int    `xml:"cpuAllocationMhz,attr,omitempty"`
+	CpuLimitMhz             int    `xml:"cpuLimitMhz,attr,omitempty"`
+	CpuUsedMhz              int    `xml:"cpuUsedMhz,attr,omitempty"`
+	CpuOverheadMhz          int    `xml:"cpuOverheadMhz,attr,omitempty"`
+	MemoryAllocationMB      int    `xml:"memoryAllocationMB,attr,omitempty"`
+	MemoryLimitMB           int    `xml:"memoryLimitMB,attr,omitempty"`
+	MemoryUsedMB            int    `xml:"memoryUsedMB,attr,omitempty"`
+	MemoryOverheadMB        int    `xml:"memoryOverheadMB,attr,omitempty"`
+	NumberOfDatastores      int    `xml:"numberOfDatastores,attr,omitempty"`
+	NumberOfDisks           int    `xml:"numberOfDisks,attr,omitempty"`
+	NumberOfMedia           int    `xml:"numberOfMedia,attr,omitempty"`
+	NumberOfStorageProfiles int    `xml:"numberOfStorageProfiles,attr,omitempty"`
+	NumberOfVAppTemplates   int    `xml:"numberOfVAppTemplates,attr,omitempty"`
+	NumberOfVApps           int    `xml:"numberOfVApps,attr,omitempty"`
+	StorageAllocationMB     int    `xml:"storageAllocationMB,attr,omitempty"`
+	StorageLimitMB          int    `xml:"storageLimitMB,attr,omitempty"`
+	StorageUsedMB           int    `xml:"storageUsedMB,attr,omitempty"`
+	StorageOverheadMB       int    `xml:"storageOverheadMB,attr,omitempty"`
+	PvdcHardwareVersion     string `xml:"pvdcHardwareVersion,attr,omitempty"`
+	Task                    string `xml:"task,attr,omitempty"`
+	TaskStatusName          string `xml:"taskStatusName,attr,omitempty"`
+	TaskStatus              string `xml:"taskStatus,attr,omitempty"`
+	TaskDetails             string `xml:"taskDetails,attr,omitempty"`
+	AllocationModel         string `xml:"allocationModel,attr,omitempty"`
+	NetworkPool             string `xml:"networkPool,attr,omitempty"`
+	Status                  string `xml:"status,attr,omitempty"`
+	IsBusy                  bool   `xml:"isBusy,attr,omitempty"`
+	IsEnabled               bool   `xml:"isEnabled,attr,omitempty"`
+	IsSystemVdc             bool   `xml:"isSystemVdc,attr,omitempty"`
+}
+
+// QueryResultOrgVdcNetworkRecordType represents Org VDC network
+type QueryResultOrgVdcNetworkRecordType struct {
+	// Attributes
+	HREF               string `xml:"href,attr,omitempty"`
+	Name               string `xml:"name,attr,omitempty"`    // Network name
+	VdcName            string `xml:"vdcName,attr,omitempty"` // VDC name
+	Vdc                string `xml:"vdc,attr,omitempty"`     // VDC reference or ID
+	ConnectedTo        string `xml:"connectedTo,attr,omitempty"`
+	DefaultGateway     string `xml:"defaultGateway,attr,omitempty"`
+	Netmask            string `xml:"netmask,attr,omitempty"`
+	Dns1               string `xml:"dns1,attr,omitempty"`
+	Dns2               string `xml:"dns2,attr,omitempty"`
+	DnsSuffix          string `xml:"dnsSuffix,attr,omitempty"`
+	IsBusy             bool   `xml:"isBusy,attr,omitempty"`
+	IsIpScopeInherited bool   `xml:"isIpScopeInherited,attr,omitempty"`
+	IsShared           bool   `xml:"isShared,attr,omitempty"`
+	LinkType           int    `xml:"linkType,attr,omitempty"`
+	Task               string `xml:"task,attr,omitempty"`
+	TaskOperation      string `xml:"taskOperation,attr,omitempty"`
+	TaskStatus         string `xml:"taskStatus,attr,omitempty"`
+	TaskDetails        string `xml:"taskDetails,attr,omitempty"`
+}
+
+// QueryResultCatalogRecordType represents Org VDC network
+type QueryResultCatalogRecordType struct {
+	// Attributes
+	HREF                  string `xml:"href,attr,omitempty"`
+	Name                  string `xml:"name,attr,omitempty"`
+	OrgName               string `xml:"orgName,attr,omitempty"`
+	CreationDate          string `xml:"creationDate,attr,omitempty"`
+	IsPublished           bool   `xml:"isPublished,attr,omitempty"`
+	IsShared              bool   `xml:"isShared,attr,omitempty"`
+	NumberOfMedia         int    `xml:"numberOfMedia,attr,omitempty"`
+	NumberOfVAppTemplates int    `xml:"numberOfVAppTemplates,attr,omitempty"`
+	Owner                 string `xml:"owner,attr,omitempty"`
+	OwnerName             string `xml:"ownerName,attr,omitempty"`
+}
+
+// QueryResultVAppTemplateRecordType represents Org VDC network
+type QueryResultVAppTemplateRecordType struct {
+	// Attributes
+	HREF                   string `xml:"href,attr,omitempty"`
+	Name                   string `xml:"name,attr,omitempty"`
+	Org                    string `xml:"org,attr,omitempty"`
+	Vdc                    string `xml:"vdc,attr,omitempty"`
+	VdcName                string `xml:"vdcName,attr,omitempty"`
+	CatalogName            string `xml:"catalogName,attr,omitempty"`
+	CreationDate           string `xml:"creationDate,attr,omitempty"`
+	Description            string `xml:"description,attr,omitempty"`
+	IsBusy                 bool   `xml:"isBusy,attr,omitempty"`
+	IsDeployed             bool   `xml:"isDeployed,attr,omitempty"`
+	IsEnabled              bool   `xml:"isEnabled,attr,omitempty"`
+	IsExpired              bool   `xml:"isExpired,attr,omitempty"`
+	IsGoldMaster           bool   `xml:"isGoldMaster,attr,omitempty"`
+	IsPublished            bool   `xml:"isPublished,attr,omitempty"`
+	OwnerName              string `xml:"ownerName,attr,omitempty"`
+	Status                 string `xml:"status,attr,omitempty"`
+	StorageProfileName     string `xml:"storageProfileName,attr,omitempty"`
+	NumberOfShadowVMs      int    `xml:"numberOfShadowVMs,attr,omitempty"`
+	TaskStatusName         string `xml:"taskStatusName,attr,omitempty"`
+	IsInCatalog            bool   `xml:"isInCatalog,attr,omitempty"`
+	IsAutoDeleteNotified   bool   `xml:"isAutoDeleteNotified,attr,omitempty"`
+	IsVdcEnabled           bool   `xml:"isVdcEnabled,attr,omitempty"`
+	HonorBootOrder         bool   `xml:"honorBootOrder,attr,omitempty"`
+	NumberOfVMs            int    `xml:"numberOfVMs,attr,omitempty"`
+	CpuAllocationInMhz     int    `xml:"cpuAllocationInMhz,attr,omitempty"`
+	NumberOfCpus           int    `xml:"numberOfCpus,attr,omitempty"`
+	CpuAllocationMhz       int    `xml:"cpuAllocationMhz,attr,omitempty"`
+	Task                   string `xml:"task,attr,omitempty"`
+	MemoryAllocationMB     int    `xml:"memoryAllocationMB,attr,omitempty"`
+	StorageKB              int    `xml:"storageKB,attr,omitempty"`
+	TaskStatus             string `xml:"taskStatus,attr,omitempty"`
+	IsAutoUndeployNotified bool   `xml:"isAutoUndeployNotified,attr,omitempty"`
+	TaskDetails            string `xml:"taskDetails,attr,omitempty"`
 }
 
 // QueryResultOrgVdcStorageProfileRecordType represents a storage

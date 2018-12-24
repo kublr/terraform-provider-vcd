@@ -2,6 +2,7 @@ package vcd
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"log"
 
 	"github.com/alecthomas/units"
@@ -208,20 +209,28 @@ func resourceVcdDiskDelete(d *schema.ResourceData, meta interface{}) error {
 
 	disk, err := vcdClient.OrgVdc.FindDiskByName(d.Id())
 	if err != nil {
-		return fmt.Errorf("The disk '%s' does not exist", d.Id())
+		return errors.Wrapf(err, "cannot delete disk: diskName=%s", d.Id())
 	}
 
 	err = retryCall(vcdClient.MaxRetryTimeout, func() *resource.RetryError {
+		vm, err := disk.AttachedVM()
+		if err != nil {
+			return resource.NonRetryableError(errors.Wrapf(err, "cannot delete disk: diskName=%s", d.Id()))
+		}
+		if vm != nil {
+			return resource.RetryableError(errors.Errorf("cannot delete disk which it is still attached to VM: diskName=%s, vmName=%s", d.Id(), vm.Name))
+		}
+
 		task, err := disk.Delete()
 		if err != nil {
-			return resource.NonRetryableError(fmt.Errorf("Error deleting disk '%s': %#v", d.Id(), err))
+			return resource.NonRetryableError(errors.Wrapf(err, "cannot delete disk: diskName=%s", d.Id()))
 		}
 
 		return resource.RetryableError(task.WaitTaskCompletion())
 	})
 
 	if err != nil {
-		return fmt.Errorf("Error completing tasks: %#v", err)
+		return errors.Wrapf(err, "cannot delete disk: diskName=%s", d.Id())
 	}
 
 	return nil
