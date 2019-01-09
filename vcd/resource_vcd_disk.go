@@ -209,21 +209,18 @@ func resourceVcdDiskDelete(d *schema.ResourceData, meta interface{}) error {
 
 	disk, err := vcdClient.OrgVdc.FindDiskByName(d.Id())
 	if err != nil {
-		return errors.Wrapf(err, "cannot delete disk: diskName=%s", d.Id())
+		return errors.Wrapf(err, "cannot find disk: diskName=%s", d.Id())
 	}
 
 	err = retryCall(vcdClient.MaxRetryTimeout, func() *resource.RetryError {
-		vm, err := disk.AttachedVM()
+		err := disk.Refresh()
 		if err != nil {
-			return resource.NonRetryableError(errors.Wrapf(err, "cannot delete disk: diskName=%s", d.Id()))
-		}
-		if vm != nil {
-			return resource.RetryableError(errors.Errorf("cannot delete disk which it is still attached to VM: diskName=%s, vmName=%s", d.Id(), vm.Name))
+			return resource.NonRetryableError(errors.Wrapf(err, "cannot refresh disk state: diskName=%s", d.Id()))
 		}
 
 		task, err := disk.Delete()
 		if err != nil {
-			return resource.NonRetryableError(errors.Wrapf(err, "cannot delete disk: diskName=%s", d.Id()))
+			return resource.RetryableError(errors.Wrapf(err, "cannot delete disk: diskName=%s", d.Id()))
 		}
 
 		return resource.RetryableError(task.WaitTaskCompletion())
