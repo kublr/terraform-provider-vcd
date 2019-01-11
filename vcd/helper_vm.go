@@ -239,9 +239,10 @@ func readVM(d *schema.ResourceData, meta interface{}) error {
 
 	// Get VM object from VCD
 	vm, err := vcdClient.OrgVdc.GetVMByHREF(d.Get("href").(string))
-
 	if err != nil {
-		return fmt.Errorf("Could not find VM (%s)(%s) in VCD", d.Get("name").(string), d.Get("href").(string))
+		log.Printf("VM '%s' does not exists. removing from tfstate", d.Id())
+		d.SetId("")
+		return nil
 	}
 
 	err = vm.Refresh()
