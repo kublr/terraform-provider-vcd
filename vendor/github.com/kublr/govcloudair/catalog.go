@@ -92,37 +92,6 @@ func (c *Catalog) FindCatalogItem(catalogItemName string) (CatalogItem, error) {
 	return *cat, nil
 }
 
-func (c *Catalog) DownloadMedia(mediaName string) (io.ReadCloser, error) {
-	catalogItem, err := c.FindCatalogItem(mediaName)
-	if err != nil {
-		return nil, err
-	}
-
-	media, err := catalogItem.GetMedia()
-	if err != nil {
-		return nil, err
-	}
-
-	if media.Media.Files == nil || len(media.Media.Files.File) == 0 {
-		task, err := media.EnableDownload()
-		if err != nil {
-			return nil, err
-		}
-
-		err = task.WaitTaskCompletion()
-		if err != nil {
-			return nil, err
-		}
-
-		err = media.Refresh()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return media.Download()
-}
-
 func (c *Catalog) UploadMedia(mediaName string, reader io.Reader) (Task, error) {
 	mediaType := strings.TrimPrefix(filepath.Ext(mediaName), ".")
 	if mediaType == "" {

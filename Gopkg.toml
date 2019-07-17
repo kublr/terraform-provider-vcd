@@ -5,8 +5,12 @@
 
 [[constraint]]
   name = "github.com/hashicorp/terraform"
-  version = "0.11.3"
+  version = "0.12.4"
 
 [[constraint]]
   name = "github.com/kublr/govcloudair"
+  branch = "master"
+
+[[override]]
+  name = "github.com/zclconf/go-cty"
   branch = "master"
