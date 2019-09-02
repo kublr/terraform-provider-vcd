@@ -1064,9 +1064,9 @@ type VM struct {
 	// FIXME: Upstream bug? Missing GuestCustomizationSection
 	GuestCustomizationSection *GuestCustomizationSection `xml:"GuestCustomizationSection,omitempty"`
 
-	Snapshots *SnapshotSection `xml:"SnapshotSection,omitempty"`
+	Snapshots *SnapshotSection `xml:"ovf:SnapshotSection,omitempty"`
 
-	ProductSection *ProductSection `xml:"ProductSection,omitempty"`
+	ProductSection *ProductSection `xml:"ovf:ProductSection,omitempty"`
 
 	DateCreated string `xml:"DateCreated,omitempty"` // Creation date/time of the vApp.
 
