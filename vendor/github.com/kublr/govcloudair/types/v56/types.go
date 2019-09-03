@@ -1064,7 +1064,7 @@ type VM struct {
 	// FIXME: Upstream bug? Missing GuestCustomizationSection
 	GuestCustomizationSection *GuestCustomizationSection `xml:"GuestCustomizationSection,omitempty"`
 
-	Snapshots *SnapshotSection `xml:"ovf:SnapshotSection,omitempty"`
+	Snapshots *SnapshotSection `xml:"SnapshotSection,omitempty"`
 
 	ProductSection *ProductSection `xml:"ovf:ProductSection,omitempty"`
 

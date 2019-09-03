@@ -411,14 +411,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a176c1bf114876dca9e11ee7aaad8527299de377aa27b30482a099c34f635a47"
+  digest = "1:28e0d795d7b856fed054a44e02603d76c502838895ad3c79cd5500e2d61565e9"
   name = "github.com/kublr/govcloudair"
   packages = [
     ".",
     "types/v56",
   ]
   pruneopts = "NUT"
-  revision = "401586b63dba25f5a9dc14697ab410cab841ed38"
+  revision = "8678ce71fee24240b1cd03c5de64e8aaec028c6e"
 
 [[projects]]
   digest = "1:08c231ec84231a7e23d67e4b58f975e1423695a32467a362ee55a803f9de8061"
