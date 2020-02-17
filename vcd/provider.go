@@ -3,6 +3,7 @@ package vcd
 import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
+	"github.com/kublr/govcloudair/types/v56"
 )
 
 // Provider returns a terraform.ResourceProvider.
@@ -63,6 +64,13 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("VCD_ALLOW_UNVERIFIED_SSL", false),
 				Description: "If set, VCDClient will permit unverifiable SSL certificates.",
 			},
+
+			"api_version": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("VCD_API_VERSION", types.ApiVersion),
+				Description: "The name of the VDC to run operations on",
+			},
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -97,6 +105,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		VDC:             d.Get("vdc").(string),
 		MaxRetryTimeout: maxRetryTimeout,
 		InsecureFlag:    d.Get("allow_unverified_ssl").(bool),
+		ApiVersion:      d.Get("api_version").(string),
 	}
 
 	return config.Client()

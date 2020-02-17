@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	govcd "github.com/kublr/govcloudair" // Forked from vmware/govcloudair
-	"github.com/kublr/govcloudair/types/v56"
 	"github.com/pkg/errors"
 )
 
@@ -17,6 +16,7 @@ type Config struct {
 	VDC             string
 	MaxRetryTimeout int
 	InsecureFlag    bool
+	ApiVersion      string
 }
 
 type VCDClient struct {
@@ -36,7 +36,7 @@ func (c *Config) Client() (*VCDClient, error) {
 		return nil, errors.Wrapf(err, "Cannot parse URL: %s", c.Href)
 	}
 
-	client := govcd.NewVCDClient(*u, c.InsecureFlag, types.ApiVersion)
+	client := govcd.NewVCDClient(*u, c.InsecureFlag, c.ApiVersion)
 	err = client.Authenticate(c.User, c.Password, c.Org)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Cannot authenticate in vCD: orgName=%s, userName=%s", c.Org, c.User)
