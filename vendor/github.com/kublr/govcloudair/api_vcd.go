@@ -82,7 +82,7 @@ func (c *VCDClient) vcdauthorize(user, pass, org string) error {
 	req.SetBasicAuth(user+"@"+org, pass)
 
 	// Add the Accept header for vCA
-	req.Header.Add(GetVersionHeader(types.ApiVersion))
+	req.Header.Add(GetVersionHeader(c.Client.APIVersion))
 
 	resp, err := checkResp(c.Client.Http.Do(req))
 	if err != nil {
