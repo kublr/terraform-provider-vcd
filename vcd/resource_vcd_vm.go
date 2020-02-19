@@ -77,6 +77,11 @@ func resourceVcdVM() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"admin_password_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
 			"admin_password_auto": {
 				Type:     schema.TypeBool,
 				Optional: true,

@@ -176,17 +176,24 @@ func configureVM(d *schema.ResourceData, vm *govcd.VM, meta interface{}) error {
 	}
 
 	// Change nested hypervisor setting of VM
+	if d.HasChange("admin_password_enabled") {
+		log.Printf("[TRACE] (%s) Changing admin_password_enabled", d.Get("name").(string))
+
+		vm.VM.GuestCustomizationSection.AdminPasswordEnabled = d.Get("admin_password_enabled").(bool)
+	}
+
+	// Change nested hypervisor setting of VM
 	if d.HasChange("admin_password_auto") {
 		log.Printf("[TRACE] (%s) Changing admin_password_auto", d.Get("name").(string))
 
-		vm.SetAdminPasswordAuto(d.Get("admin_password_auto").(bool))
+		vm.VM.GuestCustomizationSection.AdminPasswordAuto = d.Get("admin_password_auto").(bool)
 	}
 
 	// Change nested hypervisor setting of VM
 	if d.HasChange("admin_password") {
 		log.Printf("[TRACE] (%s) Changing admin_password", d.Get("name").(string))
 
-		vm.SetAdminPassword(d.Get("admin_password").(string))
+		vm.VM.GuestCustomizationSection.AdminPassword = d.Get("admin_password").(string)
 	}
 
 	vm.SetNeedsCustomization(true)
