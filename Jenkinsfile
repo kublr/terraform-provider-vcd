@@ -38,16 +38,16 @@ podTemplate(
   containers: [
   	        containerTemplate(name: 'jnlp',  image: 'jenkinsci/jnlp-slave', args: '${computer.jnlpmac} ${computer.name}'),
                 containerTemplate(name: 'slave', ttyEnabled: true, command: 'cat', args: '-v',
-                        image: 'nexus.build.svc.cluster.local:5000/jenkinsci/jnlp-slave-ext:0.1.16')
+                        image: 'nexus.build.svc.cluster.local:5000/jenkinsci/jnlp-slave-ext:0.1.27')
   ]) {
   node('kublrslave') {
     String buildStatus = 'Success'
     def APP_DIR = "${HOME}/go/src/github.com/kublr/terraform-provider-vcd"
     try {
-      sh "mkdir -p ${APP_DIR}"      
+      sh "mkdir -p ${APP_DIR}"
       dir ("${APP_DIR}"){
 	checkout scm
-	stage('build-publish') {	  
+	stage('build-publish') {
 	  // get current version from the source code
 	  srcVersion = sh returnStdout: true, script: '. ./main.properties; echo -n ${COMPONENT_VERSION}'
 	  srcVersion = srcVersion.trim()
@@ -100,7 +100,7 @@ podTemplate(
                   echo 'Host *' >> ~/.ssh/config
                   echo 'BatchMode=yes' >> ~/.ssh/config
                   echo 'StrictHostKeyChecking=no' >> ~/.ssh/config
-  
+
                   git push origin 'v${publishVersion}'
                  """
 	    }
@@ -119,7 +119,7 @@ podTemplate(
 	slackMessage = "${buildEmoji} Build result for ${env.JOB_NAME} ${env.BRANCH_NAME} is: ${buildStatus}\n\n${changes}\n\nSee details at ${env.BUILD_URL}"
 	slackSend color: buildColor, message: slackMessage
       }
-    }    
+    }
   }
 }
 
