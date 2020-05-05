@@ -12,7 +12,7 @@ static def summarizeBuild(b) {
 repositories = [
         prod: [
                 branch        : ['master', 'release/.*'],
-	        goRepoUrl     : "https://repo.kublr.com/repository/gobinaries",
+	        goRepoUrl     : "https://nexus.beta.kublr.com/repository/gobinaries",
                 credentialsId : "jenkins-nexus-beta"
         ],
         any : [
